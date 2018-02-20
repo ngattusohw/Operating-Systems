@@ -1,1 +1,13 @@
-This is our explanation for lab1aisdjaoduafi
+Task1::
+	For task one, we created two new pthread_mutex's called grab_mutex and drop_mutex. When a diner goes to grab a fork, the grab_mutex locks, so that only one diner can grab the forks at a time. When the forks have been grabbed, the grab_mutex unlocks. The same is true for drop_mutex, where only one diner can drop the forks at a time. The drop_mutex also unlocks, when both forks have been released. 
+
+Task2::
+
+
+
+
+
+****
+Change the file name to description.txt
+
+in the zip, there should be task1.c , task2.c and the description.txt
