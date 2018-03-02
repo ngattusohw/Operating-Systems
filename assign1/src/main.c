@@ -188,9 +188,9 @@ int main (int argc, char** argv) {
     // wait times
 		printf("Wait times\n Max: %ld milliseconds\n Min: %ld milliseconds\n Average: %ld milliseconds\n", maximum(wait_time_arr, sizeof(wait_time_arr)), minimum(wait_time_arr, sizeof(wait_time_arr)), average(wait_time_arr, sizeof(wait_time_arr)));
     // producer throughput
-    printf("Producer throughput: %ld items \n", (numProducts * 60000000/(end_producing - start_producing)));
+    printf("Producer throughput: %ld items \n", (numProducts * 60000/(end_producing - start_producing)));
     // consumer throughput
-    printf("Consumer throughput: %ld items \n", (numProducts * 60000000/(end_consuming - start_consuming)));
+    printf("Consumer throughput: %ld items \n", (numProducts * 60000/(end_consuming - start_consuming)));
   }
   return 0;
 }
