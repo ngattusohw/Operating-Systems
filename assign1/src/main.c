@@ -184,9 +184,9 @@ int main (int argc, char** argv) {
     printf("====================\n");
     printf("Total Runtime: %ld\n", end_time - start_time);
     // turnaround times
-		printf("Turnaround times\n Max: %ld microseconds\n Min: %ld microseconds\n Average: %ld microseconds\n", maximum(turn_around_arr, sizeof(turn_around_arr)), minimum(turn_around_arr, sizeof(turn_around_arr)), average(turn_around_arr, sizeof(turn_around_arr)));
+		printf("Turnaround times\n Max: %ld milliseconds\n Min: %ld milliseconds\n Average: %ld milliseconds\n", maximum(turn_around_arr, sizeof(turn_around_arr)), minimum(turn_around_arr, sizeof(turn_around_arr)), average(turn_around_arr, sizeof(turn_around_arr)));
     // wait times
-		printf("Wait times\n Max: %ld microseconds\n Min: %ld microseconds\n Average: %ld microseconds\n", maximum(wait_time_arr, sizeof(wait_time_arr)), minimum(wait_time_arr, sizeof(wait_time_arr)), average(wait_time_arr, sizeof(wait_time_arr)));
+		printf("Wait times\n Max: %ld milliseconds\n Min: %ld milliseconds\n Average: %ld milliseconds\n", maximum(wait_time_arr, sizeof(wait_time_arr)), minimum(wait_time_arr, sizeof(wait_time_arr)), average(wait_time_arr, sizeof(wait_time_arr)));
     // producer throughput
     printf("Producer throughput: %ld items \n", (numProducts * 60000000/(end_producing - start_producing)));
     // consumer throughput
