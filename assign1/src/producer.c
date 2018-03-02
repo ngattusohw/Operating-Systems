@@ -5,13 +5,19 @@ void *producer(void *i) {
   struct product* product;
   // Continue to produce when the current number of products does not reach the total number of products
   while (producedCount < numProducts) {
+    // printf("%d %d %s\n", producedCount, numProducts, "Produced and numProducts");
+    // fflush(stdout);
     // Only 1 thread can have the mutex lock at a time
     pthread_mutex_lock(&queue_lock);
     if (producedCount >= numProducts) {
+      printf("%s %d\n", "ProducedCount >= numProducts, producer id = " , producer_id);
+      fflush(stdout);
       pthread_mutex_unlock(&queue_lock);
       break;
     }
     while (producedCount < numProducts && productsInQueue>=sizeOfQueue) {
+      printf("%s %d\n", "Producer inside pthread_cond_wait while loop --> producer id", producer_id);
+      fflush(stdout);
       pthread_cond_wait(&queue_not_full, &queue_lock);
     }
     if (producedCount < numProducts){
@@ -24,5 +30,7 @@ void *producer(void *i) {
     pthread_mutex_unlock(&queue_lock);
     usleep(100000);
   }
+  printf("%s %d\n", "The producers are done? ", producer_id);
+  fflush(stdout);
   return NULL;
 }
