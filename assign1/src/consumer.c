@@ -78,6 +78,7 @@ void *consumer(void *i) {
       printf("%s %d %d %d\n", "Consumed count = num products!! :: consumer_id == " , consumedCount, numProducts, consumer_id);
       fflush(stdout);
       pthread_cond_broadcast(&queue_not_empty);
+      pthread_mutex_unlock(&queue_lock);
       //return NULL;
       break;
     }

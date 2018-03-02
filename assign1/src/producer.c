@@ -24,11 +24,16 @@ void *producer(void *i) {
         product = createProduct();
         pushQueue(product);
         printf("Producer %d has produced product %d\n", producer_id, product->pid);
+        fflush(stdout);
+        pthread_cond_signal(&queue_not_empty);
+        pthread_mutex_unlock(&queue_lock);
+        usleep(100000);
+    }else{
+      pthread_cond_broadcast(&queue_not_empty);
+      pthread_mutex_unlock(&queue_lock);
+      break;
     }
-    fflush(stdout);
-    pthread_cond_signal(&queue_not_empty);
-    pthread_mutex_unlock(&queue_lock);
-    usleep(100000);
+
   }
   printf("%s %d\n", "The producers are done? ", producer_id);
   fflush(stdout);
