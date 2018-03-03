@@ -89,10 +89,12 @@ int main (int argc, char** argv) {
     }
     // Value of quantum used for round-robin scheduling
     quantum = atoi(argv[6]);
-    if (quantum <= 0) {
-      printf("ERROR: Invalid value for quantum");
-      return -1;
-    }
+		if (quantum <= 0 && scheduling == 1) {
+			printf("ERROR: Invalid value for quantum");
+			return -1;
+		}
+
+
     // Seed for random number generator
     seed = atoi(argv[7]);
     if (seed < 0) {
@@ -179,18 +181,23 @@ int main (int argc, char** argv) {
 
 
     // print results
-    printf("====================\n");
+    printf("-------------------------\n");
     printf("Performance Analysis\n");
-    printf("====================\n");
+    printf("-------------------------\n");
     printf("Total Runtime: %ld\n", end_time - start_time);
+		printf("-------------------------\n");
     // turnaround times
 		printf("Turnaround times\n Max: %ld milliseconds\n Min: %ld milliseconds\n Average: %ld milliseconds\n", maximum(turn_around_arr, sizeof(turn_around_arr)), minimum(turn_around_arr, sizeof(turn_around_arr)), average(turn_around_arr, sizeof(turn_around_arr)));
-    // wait times
+		printf("-------------------------\n");
+		// wait times
 		printf("Wait times\n Max: %ld milliseconds\n Min: %ld milliseconds\n Average: %ld milliseconds\n", maximum(wait_time_arr, sizeof(wait_time_arr)), minimum(wait_time_arr, sizeof(wait_time_arr)), average(wait_time_arr, sizeof(wait_time_arr)));
-    // producer throughput
-    printf("Producer throughput: %ld items \n", (numProducts * 60000/(end_producing - start_producing)));
-    // consumer throughput
-    printf("Consumer throughput: %ld items \n", (numProducts * 60000/(end_consuming - start_consuming)));
+		printf("-------------------------\n");
+		// producer throughput
+    printf("Producer throughput: %ld items \n", (long)(numProducts * 60000/(end_producing - start_producing)));
+		printf("-------------------------\n");
+		// consumer throughput
+    printf("Consumer throughput: %ld items \n", (long)(numProducts * 60000/(end_consuming - start_consuming)));
+		printf("-------------------------\n");
   }
   return 0;
 }

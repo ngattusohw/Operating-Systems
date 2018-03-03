@@ -13,7 +13,7 @@ void pushQueue(struct product* product) {
     rear = -1;
   }
   products_queue[++rear] = *product;
-	productsInQueue++;
+	++productsInQueue;
 }
 
 //Removes a product from the queue and returns the removed product
@@ -22,6 +22,6 @@ struct product* popQueue() {
 	if(front == sizeOfQueue) {
 		front = 0;
 	}
-	productsInQueue--;
+	--productsInQueue;
 	return removed;
 }
