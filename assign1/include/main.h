@@ -11,16 +11,16 @@
 
 struct product {
 	int pid;
-  long time_produced;
-  long time_inserted;
-  long time_consumed;
+  long long time_produced;
+  long long time_inserted;
+  long long time_consumed;
   int life; //a positive integer number that is randomly generated
 };
 
 
 // gloal variables
-extern long* turn_around_arr;
-extern long* wait_time_arr;
+extern long long* turn_around_arr;
+extern long long* wait_time_arr;
 extern int front;
 extern int rear;
 extern int numProducers;
@@ -48,9 +48,9 @@ void InitializeQueue(int size);
 void pushQueue(struct product* product);
 struct product* popQueue();
 int fn(int num);
-long getTimeStamp(void);
-long maximum(long* arr, size_t size);
-long minimum(long* arr, size_t size);
-long average(long* arr, size_t size);
+long long getTimeStamp(void);
+long long maximum(long long* arr, size_t size);
+long long minimum(long long* arr, size_t size);
+long long average(long long* arr, size_t size);
 
 #endif
