@@ -3,8 +3,8 @@
 // global variables
 int front = 0;
 int rear = -1;
-long* turn_around_arr;
-long* wait_time_arr;
+long long* turn_around_arr;
+long long* wait_time_arr;
 int numProducers;
 int numConsumers;
 int numProducts;
@@ -21,7 +21,7 @@ pthread_cond_t queue_not_empty;
 // Declare an array of products
 struct product *products_queue;
 
-// return a new product
+// Create a new product
 struct product* createProduct() {
 	struct product* product = (struct product*)malloc(sizeof(struct product));
 	if (product != NULL) {
@@ -29,6 +29,7 @@ struct product* createProduct() {
 		product->time_produced = getTimeStamp();
 		product->life = random() % 1024;
 	}
+	// Returns the new product
 	return product;
 }
 
@@ -38,16 +39,16 @@ int main (int argc, char** argv) {
   int seed;
   int err;
 
-  long start_time;
-  long end_time;
-  long start_producing;
-  long end_producing;
-  long start_consuming;
-  long end_consuming;
+  long long start_time;
+  long long end_time;
+  long long start_producing;
+  long long end_producing;
+  long long start_consuming;
+  long long end_consuming;
 
 
 
-  /*check arguments*/
+  // Check arguments
   if (argc != 8) {
     printf("Error: Expected 7 arguments");
     return -1;
@@ -94,7 +95,6 @@ int main (int argc, char** argv) {
 			return -1;
 		}
 
-
     // Seed for random number generator
     seed = atoi(argv[7]);
     if (seed < 0) {
@@ -108,8 +108,9 @@ int main (int argc, char** argv) {
     pthread_t consumers[numConsumers];
     int cn[numConsumers];
 
-
+		// Producers/ Consumers need to grab the mutex before producing/ consuming products
     pthread_mutex_init(&queue_lock, NULL);
+		// Initialize condition variables
     pthread_cond_init(&queue_not_full, NULL);
     pthread_cond_init(&queue_not_empty, NULL);
 
@@ -117,7 +118,6 @@ int main (int argc, char** argv) {
     srandom(seed);
 
     // Initialize queue
-
     if (sizeOfQueue > 0) {
       InitializeQueue(sizeOfQueue);
     }
@@ -126,9 +126,14 @@ int main (int argc, char** argv) {
       InitializeQueue(numProducts);
     }
 
-    // initialize size of arrays
-		turn_around_arr = (long*)malloc(sizeof(long)*numProducts);
-		wait_time_arr = (long*)malloc(sizeof(long)*numProducts);
+    // Initialize size of arrays
+		turn_around_arr = (long long*)malloc(sizeof(long long)*numProducts);
+		wait_time_arr = (long long*)malloc(sizeof(long long)*numProducts);
+		for (i=0; i<numProducts; i++) {
+			turn_around_arr[i] = 0;
+			wait_time_arr[i] = 0;
+		}
+
 
 
     // Start time
@@ -181,23 +186,18 @@ int main (int argc, char** argv) {
 
 
     // print results
-    printf("-------------------------\n");
-    printf("Performance Analysis\n");
-    printf("-------------------------\n");
-    printf("Total Runtime: %ld\n", end_time - start_time);
-		printf("-------------------------\n");
+    printf("================================\n");
+    printf("     Performance Analysis\n");
+    printf("================================\n");
+    printf("Total Runtime: %lld milliseconds\n", end_time - start_time);
     // turnaround times
-		printf("Turnaround times\n Max: %ld milliseconds\n Min: %ld milliseconds\n Average: %ld milliseconds\n", maximum(turn_around_arr, sizeof(turn_around_arr)), minimum(turn_around_arr, sizeof(turn_around_arr)), average(turn_around_arr, sizeof(turn_around_arr)));
-		printf("-------------------------\n");
+		printf("Turnaround times\n Max: %lld milliseconds\n Min: %lld milliseconds\n Average: %lld milliseconds\n", maximum(turn_around_arr, sizeof(turn_around_arr)), minimum(turn_around_arr, sizeof(turn_around_arr)), average(turn_around_arr, sizeof(turn_around_arr)));
 		// wait times
-		printf("Wait times\n Max: %ld milliseconds\n Min: %ld milliseconds\n Average: %ld milliseconds\n", maximum(wait_time_arr, sizeof(wait_time_arr)), minimum(wait_time_arr, sizeof(wait_time_arr)), average(wait_time_arr, sizeof(wait_time_arr)));
-		printf("-------------------------\n");
+		printf("Wait times\n Max: %lld milliseconds\n Min: %lld milliseconds\n Average: %lld milliseconds\n", maximum(wait_time_arr, sizeof(wait_time_arr)), minimum(wait_time_arr, sizeof(wait_time_arr)), average(wait_time_arr, sizeof(wait_time_arr)));
 		// producer throughput
-    printf("Producer throughput: %ld items \n", (long)(numProducts * 60000/(end_producing - start_producing)));
-		printf("-------------------------\n");
+    printf("Producer throughput: %lld items \n", (numProducts * 60000/(end_producing - start_producing)));
 		// consumer throughput
-    printf("Consumer throughput: %ld items \n", (long)(numProducts * 60000/(end_consuming - start_consuming)));
-		printf("-------------------------\n");
+    printf("Consumer throughput: %lld items \n", (numProducts * 60000/(end_consuming - start_consuming)));
   }
   return 0;
 }

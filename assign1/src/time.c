@@ -1,15 +1,15 @@
 #include "main.h"
 
 // Get the current time in milliseconds
-long getTimeStamp(void) {
+long long getTimeStamp(void) {
   struct timeval tv;
   gettimeofday(&tv, NULL);
-  long milliseconds = (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000 ;
+  long long milliseconds = (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000 ;
   return milliseconds;
 }
 
 // return the maximum value of the array
-long maximum(long* arr, size_t size) {
+long long maximum(long long* arr, size_t size) {
   int i = 1;
   long max = arr[i];
   while (i < size) {
@@ -21,9 +21,9 @@ long maximum(long* arr, size_t size) {
   return max;
 }
 // return the minimum value of the array
-long minimum(long* arr, size_t size) {
+long long minimum(long long* arr, size_t size) {
   int i = 1;
-  long min = arr[i];
+  long long min = arr[0];
   while (i < size) {
     if (arr[i] < min) {
       min = arr[i];
@@ -34,10 +34,10 @@ long minimum(long* arr, size_t size) {
 }
 
 // return the average value of the array
-long average(long* arr, size_t size) {
+long long average(long long* arr, size_t size) {
    int i = 0;
-   long sum = 0;
-   long avg;
+   long long sum = 0;
+   long long avg;
    while (i < size) {
      sum = sum + arr[i];
      i++;
