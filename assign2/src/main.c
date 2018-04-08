@@ -13,11 +13,11 @@ int isPowerOfTwo(unsigned int x) {
 
 // Get the current time in milliseconds
 unsigned long getTimeStamp(void) {
-  struct timeval tv;
+	struct timeval tv;
 	long long milliseconds = -1;
-  gettimeofday(&tv, NULL);
-  milliseconds = (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000 ;
-  return milliseconds;
+	gettimeofday(&tv, NULL);
+	milliseconds = (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000 ;
+	return milliseconds;
 }
 
 
@@ -84,8 +84,6 @@ int main(int argc, char** argv) {
 	    		return -1;
 	    }
 
-	    printf("%s\n", "Successfully opened file");
-
 	    numProcess = 0;
 	    totalPages = 0;
 	    while(fscanf(plistfp, "%d %d", &pid, &TotalMemoryAllocation) != EOF) {
@@ -133,7 +131,6 @@ int main(int argc, char** argv) {
 				}
 			}
 		}
-
 		// Reads from ptrace
 		swapCount = 0;
 	    ptracefp = fopen(ptrace, "r");
@@ -142,10 +139,15 @@ int main(int argc, char** argv) {
 	        printf("Unable to open ptrace file\n");
 	        return 1;
 	    }
-		while(fscanf(plistfp, "%d %d", &pid, &MemoryLocation) != EOF) {
-			numOfPage = MemoryLocation/pageSize;
+	    int numOfTimesRun = 0;
+		while(fscanf(ptracefp, "%d %d", &pid, &MemoryLocation) != EOF) {
+			printf("%s %d %d\n", "Start of while :: pid, memlocation " ,pid, MemoryLocation);
+			numOfPage = MemoryLocation;
 			// case 1: the page requested does not exist in the memory
-			if (!processes[pid]->pageTable->pages[numOfPage]->valid) {
+			printf("%s\n", "THE ISSUE IS HERE!!!!");
+			printf("TESTING ::  %d\n", processes[pid]->pageTable->numOfPages);
+			printf("NUM OF PAGE %d\n", numOfPage);
+			if (processes[pid]->pageTable->pages[numOfPage] && !processes[pid]->pageTable->pages[numOfPage]->valid) {
 				swapCount++;
 				loadPage(processes[pid],numOfPage, algorithm, PagesEachProcess);
 				// load next page
@@ -167,10 +169,13 @@ int main(int argc, char** argv) {
 						}
 					}
 				}
-			}
+			} // end of if
+
 			// Case 2: the page requested exists in the memory
 			else {
+				printf("%s\n", "In else!");
 				if (!strcmp(algorithm,"LRU")) {
+					printf("%s\n", "Inside of LRU");
 					processes[pid]->pageTable->pages[numOfPage]->lst_time_accessed = getTimeStamp();
 					if (processes[pid]->pageTable->pages[numOfPage]->lst_time_accessed == -1) {
 						printf("ERROR: Failed to get TimeStamp\n");
@@ -186,9 +191,12 @@ int main(int argc, char** argv) {
 				}
 				// For FIFO algorithm, do nothing when the page already exists in the memory
 			}
+			numOfTimesRun++;
+			printf("%s %d\n", "End of while " , numOfTimesRun);
 		} // end of While loop
+		printf("%s\n", "Hello!");
 
-	    fclose(plistfp);
+	    fclose(ptracefp);
 		// Free memory
 		if (processes != NULL) {
 			for (i = 0; i < numProcess; i++) {
