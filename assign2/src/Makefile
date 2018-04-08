@@ -12,7 +12,7 @@ CPPFLAGS+= -pedantic-errors -Wall
 
 
 all: $(OBJ)
-	$(CC) $(LDFLAGS) $(OBJ) $(LDLIBS) -o $(PRG)
+	$(CC) $(LDFLAGS) $(OBJ) $(LDLIBS) -o $(PRG) -g
 clean:
 	$(RM) *.o
 

@@ -67,7 +67,7 @@ void pushCLOCK(struct process* process, int pageNum) {
   struct loadedPage *temp;
   loadedPage = (struct loadedPage*)calloc(1,sizeof(struct loadedPage*));
   if (loadedPage != NULL) {
-    loadedPage->numPage = num;
+    loadedPage->pageNum = pageNum;
     loadedPage->referenced = 1;
     loadedPage->next = NULL;
     if (process->loadedHead == NULL) {

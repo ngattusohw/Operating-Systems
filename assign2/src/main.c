@@ -84,10 +84,13 @@ int main(int argc, char** argv) {
 	    		return -1;
 	    }
 
+	    numProcess = 0;
+	    totalPages = 0;
 	    while(fscanf(plistfp, "%d %d", &pid, &TotalMemoryAllocation) != EOF) {
 	    		totalPages += (int)ceil((double)TotalMemoryAllocation / pageSize);
 	    		numProcess += 1;
 	    }
+	    	processes = NULL;
 			if (numProcess > 0) {
 				processes = (struct process**)calloc(numProcess, sizeof(struct process*));
 			}
