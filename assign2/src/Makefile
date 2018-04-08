@@ -8,7 +8,7 @@ LDLIBS=-lm
 LDFLAGS+=
 
 CFLAGS+= $(INCLPATH)
-CPPFLAGS+= -pedantic-errors -Wall
+CPPFLAGS+= -pedantic-errors -Wall -Werror --pedantic -std=c99 
 
 
 all: $(OBJ)

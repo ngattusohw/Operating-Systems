@@ -25,14 +25,14 @@ int main(int argc, char** argv) {
 	int i, j, k, found;
 	char* plist;
 	char* ptrace;
-  FILE* plistfp; // file handle for plist file
-  FILE* ptracefp; // file handle for ptrace file
-  char* algorithm;
-  int pageSize;
+	FILE* plistfp; // file handle for plist file
+	FILE* ptracefp; // file handle for ptrace file
+	char* algorithm;
+	int pageSize;
 	int prePaging;
-  int numProcess;
-  int pid, TotalMemoryAllocation, MemoryLocation;
-  int totalPages;
+	int numProcess;
+	int pid, TotalMemoryAllocation, MemoryLocation;
+	int totalPages;
 	int PagesEachProcess;
 	int swapCount;
 	int numOfPage;
@@ -84,119 +84,121 @@ int main(int argc, char** argv) {
 	    		return -1;
 	    }
 
+	    printf("%s\n", "Successfully opened file");
+
 	    numProcess = 0;
 	    totalPages = 0;
 	    while(fscanf(plistfp, "%d %d", &pid, &TotalMemoryAllocation) != EOF) {
 	    		totalPages += (int)ceil((double)TotalMemoryAllocation / pageSize);
 	    		numProcess += 1;
 	    }
-	    	processes = NULL;
-			if (numProcess > 0) {
-				processes = (struct process**)calloc(numProcess, sizeof(struct process*));
-			}
-			if (processes == NULL) {
-				printf("ERROR: Failed to allocate memory\n");
-				return -1;
-			}
-			// Sets the file position to the beginning of the file
-			rewind(plistfp);
-			while(fscanf(plistfp, "%d %d", &pid, &TotalMemoryAllocation) != EOF) {
-				for (i = 0;i<numProcess;i++) {
-					processes[i]->pid = i;
-					processes[i]->pageTable = CreatePageTable(TotalMemoryAllocation, pageSize);
-					processes[i]->loadedHead = NULL;
-					processes[i]->ClockHandPrev = NULL;
-				}
-			}
-		  fclose(plistfp);
-
-			// Calculates how many pages each program should get into its assigned main memory part
-			PagesEachProcess = MAX_MEMEMORY_LOCATION / pageSize / numProcess;
+    	processes = NULL;
+		if (numProcess > 0) {
+			processes = (struct process**)calloc(numProcess, sizeof(struct process*));
+		}
+		if (processes == NULL) {
+			printf("ERROR: Failed to allocate memory\n");
+			return -1;
+		}
+		// Sets the file position to the beginning of the file
+		rewind(plistfp);
+		while(fscanf(plistfp, "%d %d", &pid, &TotalMemoryAllocation) != EOF) {
 			for (i = 0;i<numProcess;i++) {
-				for (j = 0;j<PagesEachProcess && j<processes[i]->pageTable->numOfPages; j++) {
-					// Validates page
-					processes[i]->pageTable->pages[j]->valid = 1;
-					if (!strcmp(algorithm,"LRU")) {
-						processes[i]->pageTable->pages[j]->lst_time_accessed = getTimeStamp();
-						if (processes[i]->pageTable->pages[j]->lst_time_accessed == -1) {
-							printf("ERROR: Failed to get TimeStamp\n");
-							return -1;
-						}
-					}
-					else if (!strcmp(algorithm,"FIFO")) {
-						pushFIFO(processes[i],j);
-					}
-					else if (!strcmp(algorithm,"CLOCK")) {
-						pushCLOCK(processes[i],j);
+				processes[i] = (struct process*) calloc(1, sizeof(struct process));
+				processes[i]->pid = i;
+				processes[i]->pageTable = CreatePageTable(TotalMemoryAllocation, pageSize);
+				processes[i]->loadedHead = NULL;
+				processes[i]->ClockHandPrev = NULL;
+			}
+		}
+		fclose(plistfp);
+		// Calculates how many pages each program should get into its assigned main memory part
+		PagesEachProcess = MAX_MEMEMORY_LOCATION / pageSize / numProcess;
+		for (i = 0;i<numProcess;i++) {
+			for (j = 0;j<PagesEachProcess && j<processes[i]->pageTable->numOfPages; j++) {
+				// Validates page
+				processes[i]->pageTable->pages[j]->valid = 1;
+				if (!strcmp(algorithm,"LRU")) {
+					processes[i]->pageTable->pages[j]->lst_time_accessed = getTimeStamp();
+					if (processes[i]->pageTable->pages[j]->lst_time_accessed == -1) {
+						printf("ERROR: Failed to get TimeStamp\n");
+						return -1;
 					}
 				}
+				else if (!strcmp(algorithm,"FIFO")) {
+					pushFIFO(processes[i],j);
+				}
+				else if (!strcmp(algorithm,"CLOCK")) {
+					pushCLOCK(processes[i],j);
+				}
 			}
+		}
 
-			// Reads from ptrace
-			swapCount = 0;
+		// Reads from ptrace
+		swapCount = 0;
 	    ptracefp = fopen(ptrace, "r");
 	    if (ptracefp == NULL)
 	    {
 	        printf("Unable to open ptrace file\n");
 	        return 1;
 	    }
-			while(fscanf(plistfp, "%d %d", &pid, &MemoryLocation) != EOF) {
-				numOfPage = MemoryLocation/pageSize;
-				// case 1: the page requested does not exist in the memory
-				if (!processes[pid]->pageTable->pages[numOfPage]->valid) {
-					swapCount++;
-					loadPage(processes[pid],numOfPage, algorithm, PagesEachProcess);
-					// load next page
-					found = -1;
-					if (prePaging) {
-						// Finds the next contiguous page that does not in the memory
-						for (k = numOfPage+1; k < processes[pid]->pageTable->numOfPages; k++) {
+		while(fscanf(plistfp, "%d %d", &pid, &MemoryLocation) != EOF) {
+			numOfPage = MemoryLocation/pageSize;
+			// case 1: the page requested does not exist in the memory
+			if (!processes[pid]->pageTable->pages[numOfPage]->valid) {
+				swapCount++;
+				loadPage(processes[pid],numOfPage, algorithm, PagesEachProcess);
+				// load next page
+				found = -1;
+				if (prePaging) {
+					// Finds the next contiguous page that does not in the memory
+					for (k = numOfPage+1; k < processes[pid]->pageTable->numOfPages; k++) {
+						if (!processes[pid]->pageTable->pages[k]->valid) {
+							loadPage(processes[pid],k, algorithm, PagesEachProcess);
+							found = 1;
+							break;
+						}
+					}
+					if (found == -1) {
+						for (k = 0; k < processes[pid]->pageTable->numOfPages; i++) {
 							if (!processes[pid]->pageTable->pages[k]->valid) {
 								loadPage(processes[pid],k, algorithm, PagesEachProcess);
-								found = 1;
-								break;
-							}
-						}
-						if (found == -1) {
-							for (k = 0; k < processes[pid]->pageTable->numOfPages; i++) {
-								if (!processes[pid]->pageTable->pages[k]->valid) {
-									loadPage(processes[pid],k, algorithm, PagesEachProcess);
-								}
 							}
 						}
 					}
-				}
-				// Case 2: the page requested exists in the memory
-				else {
-					if (!strcmp(algorithm,"LRU")) {
-						processes[pid]->pageTable->pages[numOfPage]->lst_time_accessed = getTimeStamp();
-						if (processes[pid]->pageTable->pages[numOfPage]->lst_time_accessed == -1) {
-							printf("ERROR: Failed to get TimeStamp\n");
-							return -1;
-						}
-					}
-					else if (!strcmp(algorithm,"CLOCK")) {
-						found = accessCLOCK(processes[numOfPage], j);
-						if (found == -1) {
-							printf("ERROR: Failed to reset the value of variable referenced\n");
-							return -1;
-						}
-					}
-					// For FIFO algorithm, do nothing when the page already exists in the memory
 				}
 			}
+			// Case 2: the page requested exists in the memory
+			else {
+				if (!strcmp(algorithm,"LRU")) {
+					processes[pid]->pageTable->pages[numOfPage]->lst_time_accessed = getTimeStamp();
+					if (processes[pid]->pageTable->pages[numOfPage]->lst_time_accessed == -1) {
+						printf("ERROR: Failed to get TimeStamp\n");
+						return -1;
+					}
+				}
+				else if (!strcmp(algorithm,"CLOCK")) {
+					found = accessCLOCK(processes[numOfPage], j);
+					if (found == -1) {
+						printf("ERROR: Failed to reset the value of variable referenced\n");
+						return -1;
+					}
+				}
+				// For FIFO algorithm, do nothing when the page already exists in the memory
+			}
+		} // end of While loop
 
 	    fclose(plistfp);
-			// Free memory
-			if (processes != NULL) {
-				for (i = 0; i < numProcess; i++) {
-					FreePageTable(processes[i]->pageTable);
-					free(processes[i]->loadedHead);
-					free(processes[i]->ClockHandPrev);
-					free(processes[i]);
-				}
-				free(processes);
+		// Free memory
+		if (processes != NULL) {
+			for (i = 0; i < numProcess; i++) {
+				FreePageTable(processes[i]->pageTable);
+				free(processes[i]->loadedHead);
+				free(processes[i]->ClockHandPrev);
+				free(processes[i]);
 			}
-	return 0;
-}
-}
+			free(processes);
+		}
+		return 0;
+	} // end of arguments else
+} // end of main
