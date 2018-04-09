@@ -22,7 +22,10 @@ unsigned long getTimeStamp(void) {
 
 
 int main(int argc, char** argv) {
-	int i, j, k, found;
+	int i, j, k;
+	int found;
+	int test;
+	int processCount;
 	char* plist;
 	char* ptrace;
 	FILE* plistfp; // file handle for plist file
@@ -32,10 +35,9 @@ int main(int argc, char** argv) {
 	int prePaging;
 	int numProcess;
 	int pid, TotalMemoryAllocation, MemoryLocation;
-	int totalPages;
 	int PagesEachProcess;
 	int swapCount;
-	int numOfPage;
+	int localPageNum;
 	struct process** processes;
 
 
@@ -54,6 +56,7 @@ int main(int argc, char** argv) {
 			printf("ERROR: Invalid value for page size\n");
 			return -1;
 		}
+
 		if (strcmp(argv[4], "FIFO") == 0) {
 			algorithm = "FIFO";
 		}
@@ -67,59 +70,66 @@ int main(int argc, char** argv) {
 			return 1;
 		}
 
-	    if (strcmp(argv[5], "+") == 0) {
-	    		prePaging = 1;
-	    }
-	    else if (strcmp(argv[5], "-") == 0) {
-	    		prePaging = 0;
-	    }
-	    else {
-	    		printf("ERROR: Invalid value for pre-paging\n");
-	    		return -1;
-	    }
+	  if (strcmp(argv[5], "+") == 0) {
+			prePaging = 1;
+		}
+	  else if (strcmp(argv[5], "-") == 0) {
+			prePaging = 0;
+	  }
+	  else {
+			printf("ERROR: Invalid value for pre-paging\n");
+	 		return -1;
+		}
 			// Reads from plist file
-	    plistfp = fopen(plist, "r");
-	    if (plistfp == NULL) {
-	    		printf("ERROR: Unable to open plist file\n");
-	    		return -1;
-	    }
+	   plistfp = fopen(plist, "r");
+	   if (plistfp == NULL) {
+	   		printf("ERROR: Unable to open plist file\n");
+	   		return -1;
+	   }
 
-	    printf("%s\n", "Successfully opened file");
+		 // printf("%s\n", "Successfully opened file");
+		 // fflush(stdout);
 
 	    numProcess = 0;
-	    totalPages = 0;
 	    while(fscanf(plistfp, "%d %d", &pid, &TotalMemoryAllocation) != EOF) {
-	    		totalPages += (int)ceil((double)TotalMemoryAllocation / pageSize);
 	    		numProcess += 1;
 	    }
+			// printf("%d \n", numProcess);
     	processes = NULL;
-		if (numProcess > 0) {
-			processes = (struct process**)calloc(numProcess, sizeof(struct process*));
-		}
-		if (processes == NULL) {
-			printf("ERROR: Failed to allocate memory\n");
-			return -1;
-		}
-		// Sets the file position to the beginning of the file
-		rewind(plistfp);
-		while(fscanf(plistfp, "%d %d", &pid, &TotalMemoryAllocation) != EOF) {
-			for (i = 0;i<numProcess;i++) {
-				processes[i] = (struct process*) calloc(1, sizeof(struct process));
-				processes[i]->pid = i;
-				processes[i]->pageTable = CreatePageTable(TotalMemoryAllocation, pageSize);
-				processes[i]->loadedHead = NULL;
-				processes[i]->ClockHandPrev = NULL;
+			if (numProcess > 0) {
+				processes = (struct process**)calloc(numProcess, sizeof(struct process*));
 			}
-		}
-		fclose(plistfp);
-		// Calculates how many pages each program should get into its assigned main memory part
+			if (processes == NULL) {
+				printf("ERROR: Failed to allocate memory\n");
+				return -1;
+			}
+			// Sets the file position to the beginning of the file
+			rewind(plistfp);
+			processCount = 0;
+			while (fscanf(plistfp, "%d %d", &pid, &TotalMemoryAllocation) != EOF) {
+				processes[processCount] = (struct process*) calloc(1, sizeof(struct process));
+				processes[processCount]->pid = processCount;
+				processes[processCount]->pageTable = CreatePageTable(TotalMemoryAllocation, pageSize);
+				processes[processCount]->loadedHead = NULL;
+				processes[processCount]->ClockHandPrev = NULL;
+				processes[processCount]->numOfLoaded = 0;
+				processCount++;
+			}
+			fclose(plistfp);
+
+
+
+		// Calculates how many pages on average each program should get into its assigned main memory part
 		PagesEachProcess = MAX_MEMEMORY_LOCATION / pageSize / numProcess;
-		for (i = 0;i<numProcess;i++) {
-			for (j = 0;j<PagesEachProcess && j<processes[i]->pageTable->numOfPages; j++) {
+		// printf("%d\n", PagesEachProcess);
+		for (i = 0; i<numProcess; i++) {
+			for (j = 0; j<PagesEachProcess && j<processes[i]->pageTable->numOfPages; j++) {
 				// Validates page
 				processes[i]->pageTable->pages[j]->valid = 1;
 				if (!strcmp(algorithm,"LRU")) {
 					processes[i]->pageTable->pages[j]->lst_time_accessed = getTimeStamp();
+					printf("%lu \n", processes[i]->pageTable->pages[j]->lst_time_accessed);
+					// Check error
 					if (processes[i]->pageTable->pages[j]->lst_time_accessed == -1) {
 						printf("ERROR: Failed to get TimeStamp\n");
 						return -1;
@@ -131,38 +141,55 @@ int main(int argc, char** argv) {
 				else if (!strcmp(algorithm,"CLOCK")) {
 					pushCLOCK(processes[i],j);
 				}
+				processes[i]->numOfLoaded += 1;
 			}
 		}
 
+		// Test
+		// for (int i = 0; i < numProcess; ++i) {
+		// 	printf("pid = %d num of loaded pages: %d\n",
+		// 			processes[i]->pid,
+		// 			processes[i]->numOfLoaded);
+		// }
+
 		// Reads from ptrace
 		swapCount = 0;
-	    ptracefp = fopen(ptrace, "r");
-	    if (ptracefp == NULL)
+	  ptracefp = fopen(ptrace, "r");
+	  if (ptracefp == NULL)
 	    {
 	        printf("Unable to open ptrace file\n");
 	        return 1;
 	    }
-		while(fscanf(plistfp, "%d %d", &pid, &MemoryLocation) != EOF) {
-			numOfPage = MemoryLocation/pageSize;
+		while(fscanf(ptracefp, "%d %d", &pid, &MemoryLocation) != EOF) {
+			// printf("%s %d %d\n", "Start of while :: pid, memlocation ", pid, MemoryLocation);
+			localPageNum = (int)ceil((double)MemoryLocation / pageSize);
+			localPageNum -= 1; // translate to right index number
+
 			// case 1: the page requested does not exist in the memory
-			if (!processes[pid]->pageTable->pages[numOfPage]->valid) {
-				swapCount++;
-				loadPage(processes[pid],numOfPage, algorithm, PagesEachProcess);
+			if (!processes[pid]->pageTable->pages[localPageNum]->valid) {
+				test = loadPage(processes[pid],localPageNum, algorithm, PagesEachProcess);
+				if (test == 1) {
+					swapCount++;
+				}
 				// load next page
 				found = -1;
+				// the case when prePaging is TRUE: brings 2 pages into memory for every swap
+				//
 				if (prePaging) {
+					test = -1;
 					// Finds the next contiguous page that does not in the memory
-					for (k = numOfPage+1; k < processes[pid]->pageTable->numOfPages; k++) {
+					for (k = localPageNum+1; k < processes[pid]->pageTable->numOfPages; k++) {
 						if (!processes[pid]->pageTable->pages[k]->valid) {
-							loadPage(processes[pid],k, algorithm, PagesEachProcess);
+							test = loadPage(processes[pid],k, algorithm, PagesEachProcess);
 							found = 1;
 							break;
 						}
 					}
 					if (found == -1) {
-						for (k = 0; k < processes[pid]->pageTable->numOfPages; i++) {
+						for (k = 0; k < processes[pid]->pageTable->numOfPages; k++) {
 							if (!processes[pid]->pageTable->pages[k]->valid) {
-								loadPage(processes[pid],k, algorithm, PagesEachProcess);
+								test = loadPage(processes[pid],k, algorithm, PagesEachProcess);
+								break;
 							}
 						}
 					}
@@ -171,14 +198,14 @@ int main(int argc, char** argv) {
 			// Case 2: the page requested exists in the memory
 			else {
 				if (!strcmp(algorithm,"LRU")) {
-					processes[pid]->pageTable->pages[numOfPage]->lst_time_accessed = getTimeStamp();
-					if (processes[pid]->pageTable->pages[numOfPage]->lst_time_accessed == -1) {
+					processes[pid]->pageTable->pages[localPageNum]->lst_time_accessed = getTimeStamp();
+					if (processes[pid]->pageTable->pages[localPageNum]->lst_time_accessed == -1) {
 						printf("ERROR: Failed to get TimeStamp\n");
 						return -1;
 					}
 				}
 				else if (!strcmp(algorithm,"CLOCK")) {
-					found = accessCLOCK(processes[numOfPage], j);
+					found = accessCLOCK(processes[pid], localPageNum);
 					if (found == -1) {
 						printf("ERROR: Failed to reset the value of variable referenced\n");
 						return -1;
@@ -187,8 +214,7 @@ int main(int argc, char** argv) {
 				// For FIFO algorithm, do nothing when the page already exists in the memory
 			}
 		} // end of While loop
-
-	    fclose(plistfp);
+	  fclose(plistfp);
 		// Free memory
 		if (processes != NULL) {
 			for (i = 0; i < numProcess; i++) {
@@ -199,6 +225,12 @@ int main(int argc, char** argv) {
 			}
 			free(processes);
 		}
+
+
+		// print total number of page swaps
+		printf("Total number of page swaps: %d\n", swapCount);
+		fflush(stdout);
+
 		return 0;
 	} // end of arguments else
 } // end of main
