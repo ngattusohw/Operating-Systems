@@ -45,9 +45,9 @@ int isPowerOfTwo(unsigned int x);
 unsigned long getTimeStamp(void);
 struct pageTable *CreatePageTable(int TotalMemoryAllocation, int pageSize);
 void FreePageTable(struct pageTable *pageTable);
-
-void loadPage(struct process* process, int numOfPage, char *algorithm, int PagesEachProcess);
+int loadPage(struct process* process, int numOfPage, char *algorithm, int PagesEachProcess);
 void pushFIFO(struct process* process, int pageNum);
+int popFIFO(struct process* process);
 void pushCLOCK(struct process* process, int pageNum);
 int accessCLOCK(struct process* process, int pageNum);
 
