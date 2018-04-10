@@ -15,7 +15,7 @@
 struct page {
     int pageNum;
     int valid;
-    unsigned long lst_time_accessed;
+     unsigned long lst_time_accessed;
 };
 
 struct pageTable {
@@ -34,7 +34,6 @@ struct process {
   int numOfLoaded;
   struct pageTable *pageTable;
   struct loadedPage *loadedHead;
-  struct loadedPage *ClockHandPrev;
 };
 
 
@@ -42,13 +41,13 @@ struct process {
 // All functions
 int main(int argc, char** argv);
 int isPowerOfTwo(unsigned int x);
-unsigned long getTimeStamp(void);
 struct pageTable *CreatePageTable(int TotalMemoryAllocation, int pageSize);
 void FreePageTable(struct pageTable *pageTable);
-int loadPage(struct process* process, int numOfPage, char *algorithm, int PagesEachProcess);
+int loadPage(struct process* process, int numOfPage, char *algorithm, int PagesEachProcess, unsigned long relativeTime);
 void pushFIFO(struct process* process, int pageNum);
 int popFIFO(struct process* process);
-void pushCLOCK(struct process* process, int pageNum);
-int accessCLOCK(struct process* process, int pageNum);
+void pushClock(struct process* process, int pageNumber);
+int popClock(struct process* process);
+int resetReferencedVal(struct process* process, int pageNum);
 
 #endif

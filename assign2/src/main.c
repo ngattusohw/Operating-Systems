@@ -1,7 +1,7 @@
 #include "main.h"
 
 
-
+// To check if the number is power of two
 int isPowerOfTwo(unsigned int x) {
 	// While x is even and > 1
 	 while (((x & 1) == 0) && x > 1)  {
@@ -10,15 +10,6 @@ int isPowerOfTwo(unsigned int x) {
 	 return (x == 1);
 }
 
-
-// Get the current time in milliseconds
-unsigned long getTimeStamp(void) {
-  struct timeval tv;
-	long long milliseconds = -1;
-  gettimeofday(&tv, NULL);
-  milliseconds = (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000 ;
-  return milliseconds;
-}
 
 
 int main(int argc, char** argv) {
@@ -39,6 +30,7 @@ int main(int argc, char** argv) {
 	int swapCount;
 	int localPageNum;
 	struct process** processes;
+	unsigned long relativeTime; // Used for LRU algorithm
 
 
 
@@ -63,8 +55,8 @@ int main(int argc, char** argv) {
 		else if (strcmp(argv[4], "LRU") == 0) {
 			algorithm = "LRU";
 		}
-		else if (strncmp(argv[4], "CLOCK", 4) == 0)
-			algorithm = "CLOCK";
+		else if (strcmp(argv[4], "Clock") == 0)
+			algorithm = "Clock";
 		else {
 			printf("ERROR: Invalid replacement algorithm\n");
 			return 1;
@@ -111,7 +103,6 @@ int main(int argc, char** argv) {
 				processes[processCount]->pid = processCount;
 				processes[processCount]->pageTable = CreatePageTable(TotalMemoryAllocation, pageSize);
 				processes[processCount]->loadedHead = NULL;
-				processes[processCount]->ClockHandPrev = NULL;
 				processes[processCount]->numOfLoaded = 0;
 				processCount++;
 			}
@@ -120,26 +111,24 @@ int main(int argc, char** argv) {
 
 
 		// Calculates how many pages on average each program should get into its assigned main memory part
+		relativeTime = 1;
+		// proportional allocation
 		PagesEachProcess = MAX_MEMEMORY_LOCATION / pageSize / numProcess;
 		// printf("%d\n", PagesEachProcess);
 		for (i = 0; i<numProcess; i++) {
 			for (j = 0; j<PagesEachProcess && j<processes[i]->pageTable->numOfPages; j++) {
 				// Validates page
 				processes[i]->pageTable->pages[j]->valid = 1;
+
 				if (!strcmp(algorithm,"LRU")) {
-					processes[i]->pageTable->pages[j]->lst_time_accessed = getTimeStamp();
-					printf("%lu \n", processes[i]->pageTable->pages[j]->lst_time_accessed);
-					// Check error
-					if (processes[i]->pageTable->pages[j]->lst_time_accessed == -1) {
-						printf("ERROR: Failed to get TimeStamp\n");
-						return -1;
-					}
+					processes[i]->pageTable->pages[j]->lst_time_accessed = relativeTime;
+					relativeTime++;
 				}
 				else if (!strcmp(algorithm,"FIFO")) {
 					pushFIFO(processes[i],j);
 				}
-				else if (!strcmp(algorithm,"CLOCK")) {
-					pushCLOCK(processes[i],j);
+				else if (!strcmp(algorithm,"Clock")) {
+					pushClock(processes[i],j);
 				}
 				processes[i]->numOfLoaded += 1;
 			}
@@ -167,9 +156,12 @@ int main(int argc, char** argv) {
 
 			// case 1: the page requested does not exist in the memory
 			if (!processes[pid]->pageTable->pages[localPageNum]->valid) {
-				test = loadPage(processes[pid],localPageNum, algorithm, PagesEachProcess);
+				test = loadPage(processes[pid],localPageNum, algorithm, PagesEachProcess, relativeTime);
 				if (test == 1) {
 					swapCount++;
+				}
+				if (!strcmp(algorithm,"LRU")) {
+					relativeTime ++;
 				}
 				// load next page
 				found = -1;
@@ -180,7 +172,7 @@ int main(int argc, char** argv) {
 					// Finds the next contiguous page that does not in the memory
 					for (k = localPageNum+1; k < processes[pid]->pageTable->numOfPages; k++) {
 						if (!processes[pid]->pageTable->pages[k]->valid) {
-							test = loadPage(processes[pid],k, algorithm, PagesEachProcess);
+							test = loadPage(processes[pid],k, algorithm, PagesEachProcess,relativeTime);
 							found = 1;
 							break;
 						}
@@ -188,24 +180,24 @@ int main(int argc, char** argv) {
 					if (found == -1) {
 						for (k = 0; k < processes[pid]->pageTable->numOfPages; k++) {
 							if (!processes[pid]->pageTable->pages[k]->valid) {
-								test = loadPage(processes[pid],k, algorithm, PagesEachProcess);
+								test = loadPage(processes[pid],k, algorithm, PagesEachProcess, relativeTime);
 								break;
 							}
 						}
+					}
+					if (!strcmp(algorithm,"LRU")) {
+						relativeTime ++;
 					}
 				}
 			}
 			// Case 2: the page requested exists in the memory
 			else {
 				if (!strcmp(algorithm,"LRU")) {
-					processes[pid]->pageTable->pages[localPageNum]->lst_time_accessed = getTimeStamp();
-					if (processes[pid]->pageTable->pages[localPageNum]->lst_time_accessed == -1) {
-						printf("ERROR: Failed to get TimeStamp\n");
-						return -1;
-					}
+					processes[pid]->pageTable->pages[localPageNum]->lst_time_accessed = relativeTime;
+					relativeTime++;
 				}
-				else if (!strcmp(algorithm,"CLOCK")) {
-					found = accessCLOCK(processes[pid], localPageNum);
+				else if (!strcmp(algorithm,"Clock")) {
+					found = resetReferencedVal(processes[pid], localPageNum);
 					if (found == -1) {
 						printf("ERROR: Failed to reset the value of variable referenced\n");
 						return -1;
@@ -220,7 +212,6 @@ int main(int argc, char** argv) {
 			for (i = 0; i < numProcess; i++) {
 				FreePageTable(processes[i]->pageTable);
 				free(processes[i]->loadedHead);
-				free(processes[i]->ClockHandPrev);
 				free(processes[i]);
 			}
 			free(processes);

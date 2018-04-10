@@ -14,7 +14,6 @@ struct pageTable *CreatePageTable(int TotalMemoryAllocation, int pageSize) {
 				struct page *tempPage = (struct page*)calloc(1,sizeof(struct page));
 				tempPage->pageNum = i;
 				tempPage->valid = 0;
-				tempPage->lst_time_accessed = -1;
 				tempPageTable->pages[i] = tempPage;
 			}
 		}
