@@ -197,7 +197,7 @@ int main(int argc, char** argv) {
 					relativeTime++;
 				}
 				else if (!strcmp(algorithm,"Clock")) {
-					found = resetReferencedVal(processes[pid], localPageNum);
+					found = resetReferenceBit(processes[pid], localPageNum);
 					if (found == -1) {
 						printf("ERROR: Failed to reset the value of variable referenced\n");
 						return -1;

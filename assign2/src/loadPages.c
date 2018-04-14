@@ -23,7 +23,7 @@ int loadPage(struct process* process, int pageNum, char *algorithm, int PagesEac
           break;
         }
       }
-      // To find the oldest page (with the smallest timestamp) by looping through all pages loaded in memeory
+      // To find the oldest page (with the oldest timestamp) by looping through all pages loaded in memeory
       for (i = toSwap+1; i < process->pageTable->numOfPages; i++) {
         if (process->pageTable->pages[i]->valid &&
           process->pageTable->pages[i]->lst_time_accessed <
@@ -76,7 +76,7 @@ int loadPage(struct process* process, int pageNum, char *algorithm, int PagesEac
     }
     // Caes 3.2: need to swap pages
     else {
-      //Get page index that is being unloaded
+      // Get page index that is being unloaded
       idx = popFIFO(process);
       process->numOfLoaded -= 1;
 
@@ -201,7 +201,7 @@ int popClock(struct process* process) {
 
 
 // Checks if the page exists in the memory and resets the reference bit
-int resetReferencedVal(struct process* process, int pageNum) {
+int resetReferenceBit(struct process* process, int pageNum) {
     int rtn = -1;
     struct loadedPage *temp;
     if (process->loadedHead != NULL) {

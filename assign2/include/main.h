@@ -48,6 +48,6 @@ void pushFIFO(struct process* process, int pageNum);
 int popFIFO(struct process* process);
 void pushClock(struct process* process, int pageNumber);
 int popClock(struct process* process);
-int resetReferencedVal(struct process* process, int pageNum);
+int resetReferenceBit(struct process* process, int pageNum);
 
 #endif
