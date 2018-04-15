@@ -1,3 +1,5 @@
+// Kexian Wu (kwu5), Louis Rozencwajg-Hays (lrozencw), Nick Gattuso (ngattuso)
+// I pledge my honor that I have abided by the Stevens Honor System.
 #ifndef _MAIN_H_
 #define _MAIN_H_
 
