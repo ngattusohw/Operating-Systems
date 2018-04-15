@@ -1,5 +1,6 @@
+// Kexian Wu (kwu5), Louis Rozencwajg-Hays (lrozencw), Nick Gattuso (ngattuso)
+// I pledge my honor that I have abided by the Stevens Honor System.
 #include "main.h"
-
 
 // To check if the number is power of two
 int isPowerOfTwo(unsigned int x) {
