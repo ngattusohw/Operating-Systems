@@ -41,11 +41,18 @@ void parser::dirList(string file){
 void parser::fileList(string file){
 	ifstream inFile (file);
 	char oneline[MAXLINE];
-
+	string ID;
+	string fileSize;
+	string date1;
+	string date2;
+	string date3;
+	string filename;
+	string garbage;
 	while (inFile)
 	{
 		inFile.getline(oneline, MAXLINE);
-		cout << oneline << endl; //something with Dir
+		inFile >> ID >> garbage >> garbage >> garbage >> garbage >> garbage >> fileSize >> date1 >> date2 >> date3 >> filename;
+		cout << ID << " fileSize:: " << fileSize << " Date:: " << date1 << date2 << date3 << " File name::" << filename << endl; //something with Dir
 	}
 
 	inFile.close();
