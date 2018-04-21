@@ -2,20 +2,19 @@
 NAME=assign3
 
 # List of all .cpp source code files included in your program (separated by spaces):
-SRC=main.cpp
+SRC=main.cpp parser.cpp
 
 
 
 SRCPATH=./
 OBJ=$(addprefix $(SRCPATH), $(SRC:.cpp=.o))
-
 RM=rm -f
-INCPATH=includes
+INCPATH= ../include
 CPPFLAGS+= -I $(INCPATH)
 
 
 all: $(OBJ)
-	g++ $(OBJ) -o $(NAME) 
+	g++ $(OBJ) $(CPPFLAGS+) -o $(NAME) 
 
 clean:
 	-$(RM) *~

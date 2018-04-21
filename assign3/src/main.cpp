@@ -1,15 +1,19 @@
 #include "linkedlist.h"
 #include "Gtree.h"
-#include <stdio.h>
+#include "parser.h"
 #include "main.h"
+#include <stdio.h>
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <string.h>
+#include <string>
+#include <cstring>
 #include <list>
 #include <cmath>
 
+
 using namespace std;
+using std::string;
 
 class File
 {
@@ -48,6 +52,7 @@ int main(int argc, char** argv) {
     int blockSize;
     FILE *fl; //file_list
     FILE *dl; //dir_list
+    parser the_parser; //the parser
     
     // Format: -f <file_list.txt> -d <dir_list.txt> -s <disk size> -b <block size>
     // Check arguments
@@ -78,11 +83,13 @@ int main(int argc, char** argv) {
         else if (!strcmp(argv[i], "-f")) {
             // -f <file_list.txt>
             if (argv[i+1]) {
-                fl = fopen(argv[i+1], "r");
-                if (fl == NULL) {
-                    cout << "ERROR: Unable to open file_list.txt" << endl;
-                    return -1;
-                }
+                the_parser.fileList(argv[i+1]);
+                // fl = fopen(argv[i+1], "r");//comment out
+                // //do file list parsing
+                // if (fl == NULL) {
+                //     cout << "ERROR: Unable to open file_list.txt" << endl;
+                //     return -1;
+                // }
             }
         }
         
@@ -90,11 +97,15 @@ int main(int argc, char** argv) {
         else if (!strcmp(argv[i], "-d")) {
             // -d <dir_list.txt>
             if (argv[i+1]) {
-                dl = fopen(argv[i+1], "r");
-                if (dl == NULL) {
-                    cout << "ERROR: Unable to open dir_list.txt" << endl;
-                    return -1;
-                }
+                the_parser.dirList(argv[i+1]);
+
+                // dl = fopen(argv[i+1], "r");
+
+                // //do dir list parsing
+                // if (dl == NULL) {
+                //     cout << "ERROR: Unable to open dir_list.txt" << endl;
+                //     return -1;
+                // }
             }
             
         }
