@@ -25,7 +25,7 @@ parser::~parser(){
 }
 
 void parser::dirList(string file){
-	ifstream inFile (file);
+	ifstream inFile (file.c_str());
 	char oneline[MAXLINE];
 
 	while (inFile)
@@ -39,7 +39,7 @@ void parser::dirList(string file){
 }
 
 void parser::fileList(string file){
-	ifstream inFile (file);
+	ifstream inFile (file.c_str());
 	char oneline[MAXLINE];
 	string ID;
 	string fileSize;

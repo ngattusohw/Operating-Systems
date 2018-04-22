@@ -11,6 +11,10 @@
 #include <list>
 #include <cmath>
 
+#include <iostream>
+#include <cstring>
+#include <cstdlib>
+
 
 using namespace std;
 using std::string;
