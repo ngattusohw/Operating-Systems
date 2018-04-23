@@ -13,8 +13,8 @@ using namespace std;
 
 
 
-struct fileOrDir {
-public:
+class fileOrDir {
+  public:
     string name;
     char *timeStamp;
     bool isDirectory; // either a regular file or a directory
@@ -24,12 +24,14 @@ public:
 		list<int> blockAddresses;
 };
 
-struct Lfile {
+class Lfile {
+  public:
     unsigned long address;
     Lfile *next;
 };
 
-struct diskBlock {
+class diskBlock {
+  public:
     int start;
     int end;
     bool isFree;
@@ -37,7 +39,8 @@ struct diskBlock {
 };
 
 
-struct treeNode {
+class treeNode {
+  public:
     fileOrDir *data;
     vector<treeNode*> children;
     treeNode *parent;
@@ -45,8 +48,8 @@ struct treeNode {
 
 // global variables
 list<diskBlock*> diskBlocks;
-treeNode *root = (treeNode*)malloc(sizeof(treeNode));;
-treeNode *currentDir = (treeNode*)malloc(sizeof(treeNode));
+treeNode *root = new treeNode;
+treeNode *currentDir = new treeNode;
 
 
 int calculateBytesUnused(int fileSize, int blockSize){
@@ -114,7 +117,7 @@ treeNode* findNode(treeNode *root, string name) {
 
 
 void addChild(treeNode* parent, treeNode* child) {
-	cout << "hello here" << endl;
+	//cout << "hello here" << endl;
 	parent->children.push_back(child);
 	child->parent = parent;
 }
@@ -202,7 +205,7 @@ int main(int argc, char** argv) {
 		// test
 		cout << dl << " " << fl << " " << diskSize << " " << blockSize << " " << getTimeStamp() << endl;
     // Constructor called
-		diskBlock *dBlock = (diskBlock*)malloc(sizeof(diskBlock));
+		diskBlock *dBlock = new diskBlock;
 
 		dBlock->start = 0;
 		dBlock->end = ceil(diskSize * 1.0 / blockSize) - 1;
@@ -213,7 +216,7 @@ int main(int argc, char** argv) {
     // Initialize directories
     ifstream directories (dl);
     ifstream files (fl);
-		root = (treeNode*)malloc(sizeof(treeNode));
+		root = new treeNode;
     currentDir = root;
     string line;
     int count = 0;
@@ -224,7 +227,7 @@ int main(int argc, char** argv) {
 					// test
 					cout << "line: " << line << endl;
         	if (count == 0) {
-          	fileOrDir *dir = (fileOrDir*)malloc(sizeof(fileOrDir));
+          	fileOrDir *dir = new fileOrDir;
 						dir->name = line.substr(0, line.find_last_of("/"));
 						dir->fileSize = 0;
 						dir->isDirectory = true;
@@ -237,7 +240,7 @@ int main(int argc, char** argv) {
 						// " " << dir->timeStamp <<endl;
 						}
         	else {
-						fileOrDir *dir = (fileOrDir*)malloc(sizeof(fileOrDir));
+						fileOrDir *dir = new fileOrDir;
 						dir->name = line;
 						dir->fileSize = 0;
 						dir->isDirectory = true;
@@ -247,7 +250,7 @@ int main(int argc, char** argv) {
           	treeNode *parent = findNode(root, line.substr(0, line.find_last_of("/")));
 
 						printDirChildren(root);
-						treeNode *child = (treeNode*)malloc(sizeof(treeNode));
+						treeNode *child = new treeNode;
 						child->data = dir;
 						child->parent = NULL;
 						addChild(parent, child);
@@ -281,19 +284,21 @@ int main(int argc, char** argv) {
       while (getline(files, line)) {
         if (!(files >> ID >> garbage >> garbage >> garbage >> garbage >> garbage
           >> fileSize >> d1 >> d2 >> d3 >> dir)) {
-            cout << "ERROR: Please check file_list.txt" << endl;
-            return -1;
-          }
-        fileOrDir *file = (fileOrDir*)malloc(sizeof(fileOrDir));
-				file->name = dir;
-				file->fileSize = fileSize;
-				file->isDirectory = false;
-				file->timeStamp =  getTimeStamp();
+            cout << "Done: Please check file_list.txt" << endl;
+            break;
+            //return -1;
+        }else{
+          fileOrDir *file = new fileOrDir;
+  				file->name = dir;
+  				file->fileSize = fileSize;
+  				file->isDirectory = false;
+  				file->timeStamp =  getTimeStamp();
 
-        treeNode* parent = findNode(root, dir.substr(0, dir.find_last_of("/")));
-        treeNode* child = (treeNode*)malloc(sizeof(treeNode));
-				child->data = file;
-        addChild(parent, child);
+          treeNode* parent = findNode(root, dir.substr(0, dir.find_last_of("/")));
+          treeNode* child = new treeNode;
+  				child->data = file;
+          addChild(parent, child);
+        }
     }
     files.close();
   }
@@ -301,6 +306,8 @@ int main(int argc, char** argv) {
     cout << "ERROR: Unable to open file_list.txt" << endl;
     return -1;
   }
+  cout << "ABOUT OT PRINT MOTHA FUCKER!!!!" <<endl;
+  printDirectory(root);
 
 
 

@@ -8,3 +8,4 @@ all:
 	$(CXX) $(CXXFLAGS) $(CXX_FILE) -o $(TARGET)
 clean:
 	rm -f $(TARGET) $(TARGET).exe
+re: clean all
