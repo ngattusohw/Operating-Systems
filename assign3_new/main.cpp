@@ -235,7 +235,7 @@ int main(int argc, char** argv) {
 					cout << "line: " << line << endl;
         	if (count == 0) {
           	fileOrDir *dir = new fileOrDir;
-						dir->name = line.substr(0, line.find_last_of("/"));
+						dir->name = line;
 						dir->fileSize = 0;
 						dir->isDirectory = true;
 						dir->timeStamp = "";
@@ -270,8 +270,8 @@ int main(int argc, char** argv) {
       	}
 				continue;
 		}
-		// cout << "hello5" << endl;
-		directories.close();
+  		// cout << "hello5" << endl;
+  		directories.close();
     }
   else {
     cout << "ERROR: Unable to open dir_list.txt" << endl;
@@ -287,32 +287,36 @@ int main(int argc, char** argv) {
 	string d3;
 	string dir;
 	string garbage;
-  if (files) {
-      while (getline(files, line)) {
-        if (!(files >> ID >> garbage >> garbage >> garbage >> garbage >> garbage
-          >> fileSize >> d1 >> d2 >> d3 >> dir)) {
-            cout << "Done: Please check file_list.txt" << endl;
-            break;
-            //return -1;
-        }else{
-          fileOrDir *file = new fileOrDir;
-  				file->name = dir;
-  				file->fileSize = fileSize;
-  				file->isDirectory = false;
-  				file->timeStamp =  d1 + " " + d2 + " " + d3;
+  //if (files) {
+      while (files >> ID >> garbage >> garbage >> garbage >> garbage >> garbage >> fileSize >> d1 >> d2 >> d3 >> dir) {
+        //if( files.eof() ) break;
+        //getline(files, line);
+        
+        cout << "TESTER ::: " << dir << endl;
+        //if( files.eof() ) break;
+        // if (!()) {
+        //     cout << "Done: Please check file_list.txt" << endl;
+        //     break;
+        //     //return -1;
+        // }else{
 
-          treeNode* parent = findNode(root, dir.substr(0, dir.find_last_of("/")));
-          treeNode* child = new treeNode;
-  				child->data = file;
-          addChild(parent, child);
-        }
+        fileOrDir *file = new fileOrDir;
+				file->name = dir;
+				file->fileSize = fileSize;
+				file->isDirectory = false;
+				file->timeStamp =  d1 + " " + d2 + " " + d3;
+
+        treeNode* parent = findNode(root, dir.substr(0, dir.find_last_of("/")));
+        treeNode* child = new treeNode;
+				child->data = file;
+        addChild(parent, child);
+        //}
     }
     files.close();
-  }
-  else {
-    cout << "ERROR: Unable to open file_list.txt" << endl;
-    return -1;
-  }
+  // }else {
+  //   cout << "ERROR: Unable to open file_list.txt" << endl;
+  //   return -1;
+  // }
   cout << "ABOUT OT PRINT MOTHA FUCKER!!!!" <<endl;
   printDirectory(root);
 
