@@ -53,13 +53,15 @@ list<diskBlock*> diskBlocks;
 treeNode *root = new treeNode;
 treeNode *currentDir = new treeNode;
 
-
-int calculateBytesUnused(int fileSize, int blockSize){
-    if(fileSize ==0)
-        return 0;
-    while (fileSize > blockSize)
-        fileSize -= blockSize;
-    return blockSize - fileSize;
+int calculateBytesUnused(int fileSize, int blockSize) {
+  if (fileSize == 0) {
+    return 0;
+  }
+  int blocks = ceil((float)fileSize / (float)blockSize);
+  if (blocks == fileSize / blockSize) {
+    return 0;
+  }
+  return blockSize - (fileSize - ((blocks - 1) * blockSize));
 }
 
 
