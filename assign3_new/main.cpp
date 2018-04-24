@@ -9,6 +9,10 @@
 #include <ctime>
 #include <fstream>
 #include <string>
+#include <sstream>
+
+#include <sys/wait.h>
+#include <sys/types.h>
 using namespace std;
 
 
@@ -47,7 +51,7 @@ class treeNode {
 };
 
 // global variables
-list<diskBlock*> diskBlocks;
+list<diskBlock*> diskBlocks; //TODO:: IS THIS LDISK????
 treeNode *root = new treeNode;
 treeNode *currentDir = new treeNode;
 
@@ -306,6 +310,70 @@ int main(int argc, char** argv) {
   // }
 
   printDirectory(root);
+  char cwd[1024];
+  for(;;){
+    string input = "";
+    string input2 = "";
+    string input3 = "";
+    //getcwd(cwd, sizeof(cwd));
+    cout << cwd << "/Enter a command to manipulate the file system:: ";
+    getline(cin, input);
+    
+    size_t first_space = input.find(" ");
+    if(first_space!=string::npos){
+      //do all the multiline commands here
+      input2 = input.substr(first_space+1);
+      input = input.substr(0, first_space);
+      size_t second_space = input2.find(" ");
+      if(second_space==string::npos){
+        //do the two space stuff here
+        cout << input << endl;
+        if(input.compare("cd") == 0){
+
+        }else if(input.compare("mkdir") == 0){
+
+        }else if(input.compare("create") == 0){
+
+        }else if(input.compare("delete") == 0){
+
+        }else{
+          cout << "Command fuck found!" << endl;
+        }
+      }else{
+        //do the three space stuff here
+        input3 = input2.substr(second_space+1);
+        input2 = input2.substr(0,second_space);
+        if(input.compare("append") == 0){
+
+        }else if(input.compare("remove") == 0){
+
+        }else{
+          cout << second_space << endl;
+          cout << "Command not AHHH found!" << endl;
+        }
+      }
+    }else{
+      //all of the one thing commands
+      if(input.compare("cd..") == 0){
+        cout << "Cd thing!" << endl;
+      }else if(input.compare("ls") == 0){
+        cout << "ls thing!" << endl;
+      }else if(input.compare("exit") == 0){
+        return 0; //TODO:: Destroy everything 
+      }else if(input.compare("dir") == 0 ){
+        cout << "dir thing!" << endl;
+      }else if(input.compare("prfiles") == 0){
+        cout << "prfiles thing!" << endl;
+      }else if(input.compare("prdisk") == 0){
+        cout << "prdisk thing!" << endl;
+      }else{
+        cout << "Command not found!" << endl;
+      } 
+    }
+
+    //
+    
+  }
 
   return 0;
 }
