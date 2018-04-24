@@ -1,0 +1,13 @@
+LDisk:
+Disk size is the total memory, block size is the size of each block (memory is divided equally into blocks)
+Number of blocks: disk size / block size (512/16)
+0 - 31 are the IDs of the blocks
+The block addresses are in increments of -b (16)
+ID: 0 Addr: 0
+ID: 1 Addr: 16
+ID: 2 Addr: 32
+If a node is free, the total free space is blocks * block size (if there are 3 blocks, 3 * 16 bytes)
+
+LFile:
+Number of file blocks is real size / block size (4423/16)
+Number of nodes = number of file blocks
