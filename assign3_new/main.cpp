@@ -72,9 +72,7 @@ void printDirectory(treeNode *root) {
 			temp = queue.front();
 			cout << temp->data->name << endl;
 			queue.pop_front();
-      cout << "Child queue size: " << temp->children.size() << endl;
 			for (int i = 0; i < temp->children.size(); ++i) {
-        cout << "Child: " << temp->children[i]->data->name << endl;
         queue.push_back(temp -> children[i]);
       }
 		}
@@ -102,15 +100,12 @@ treeNode* findNode(treeNode *root, string name) {
     queue.push_back(root);
     while(!queue.empty()) {
       temp = queue.front();
-      cout << "Current Dir: " << temp->data->name << " pen15: " << name << endl;
       if (temp->data->name == name) {
-        cout << "Found Dir: " << temp->data->name << endl;
         // found it
         break;
       }
       queue.pop_front();
       for (int i = 0; i < (temp->children).size(); i++) {
-        cout << "Chilean miner: " << temp->children[i]->data->name << endl;
         queue.push_back(temp -> children[i]);
       }
     }
@@ -210,7 +205,7 @@ int main(int argc, char** argv) {
         }
     }
 		// test
-		cout << dl << " " << fl << " " << diskSize << " " << blockSize << " " << "Ayy" << endl;
+		//cout << dl << " " << fl << " " << diskSize << " " << blockSize << " " << "Ayy" << endl;
     // Constructor called
 		diskBlock *dBlock = new diskBlock;
 
@@ -218,7 +213,6 @@ int main(int argc, char** argv) {
 		dBlock->end = ceil(diskSize * 1.0 / blockSize) - 1;
 		dBlock->isFree = true;
     diskBlocks.push_front(dBlock);
-
 
     // Initialize directories
     ifstream directories (dl);
@@ -231,8 +225,6 @@ int main(int argc, char** argv) {
     if (directories) {
       while (getline(directories, line)) {
       	if (line.size() != 0) {
-					// test
-					cout << "line: " << line << endl;
         	if (count == 0) {
           	fileOrDir *dir = new fileOrDir;
 						dir->name = line;
@@ -253,7 +245,7 @@ int main(int argc, char** argv) {
 						dir->isDirectory = true;
 						dir->timeStamp = "";
 						dir->allocatedBytes = 0;
-						cout << line.substr(0, line.find_last_of("/")) << "substring" <<endl;
+						//cout << line.substr(0, line.find_last_of("/")) << "substring" <<endl;
           	treeNode *parent = findNode(root, line.substr(0, line.find_last_of("/")));
 
 						printDirChildren(root);
@@ -262,9 +254,6 @@ int main(int argc, char** argv) {
 						child->parent = NULL;
 						addChild(parent, child);
 						printDirChildren(parent);
-
-
-						cout << count << endl;
         	}
         	count ++;
       	}
@@ -272,14 +261,13 @@ int main(int argc, char** argv) {
 		}
   		// cout << "hello5" << endl;
   		directories.close();
-    }
-  else {
+    }else {
     cout << "ERROR: Unable to open dir_list.txt" << endl;
     return -1;
   }
 	// printDirectory(root);
 
-  cout << "WE BE ADDIN FILS NAU" << endl;
+
 	string ID;
 	int fileSize;
 	string d1;
@@ -288,39 +276,36 @@ int main(int argc, char** argv) {
 	string dir;
 	string garbage;
   //if (files) {
-      while (files >> ID >> garbage >> garbage >> garbage >> garbage >> garbage >> fileSize >> d1 >> d2 >> d3 >> dir) {
-        //if( files.eof() ) break;
-        //getline(files, line);
-        
-        cout << "TESTER ::: " << dir << endl;
-        //if( files.eof() ) break;
-        // if (!()) {
-        //     cout << "Done: Please check file_list.txt" << endl;
-        //     break;
-        //     //return -1;
-        // }else{
+  while (files >> ID >> garbage >> garbage >> garbage >> garbage >> garbage >> fileSize >> d1 >> d2 >> d3 >> dir) {
+    //if( files.eof() ) break;
+    //getline(files, line);
+    
+    //if( files.eof() ) break;
+    // if (!()) {
+    //     cout << "Done: Please check file_list.txt" << endl;
+    //     break;
+    //     //return -1;
+    // }else{
 
-        fileOrDir *file = new fileOrDir;
-				file->name = dir;
-				file->fileSize = fileSize;
-				file->isDirectory = false;
-				file->timeStamp =  d1 + " " + d2 + " " + d3;
+    fileOrDir *file = new fileOrDir;
+		file->name = dir;
+		file->fileSize = fileSize;
+		file->isDirectory = false;
+		file->timeStamp =  d1 + " " + d2 + " " + d3;
 
-        treeNode* parent = findNode(root, dir.substr(0, dir.find_last_of("/")));
-        treeNode* child = new treeNode;
-				child->data = file;
-        addChild(parent, child);
-        //}
-    }
-    files.close();
+    treeNode* parent = findNode(root, dir.substr(0, dir.find_last_of("/")));
+    treeNode* child = new treeNode;
+		child->data = file;
+    addChild(parent, child);
+    //}
+  }
+  files.close();
   // }else {
   //   cout << "ERROR: Unable to open file_list.txt" << endl;
   //   return -1;
   // }
-  cout << "ABOUT OT PRINT MOTHA FUCKER!!!!" <<endl;
+
   printDirectory(root);
-
-
 
   return 0;
 }
