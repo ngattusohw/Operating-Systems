@@ -9,15 +9,17 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <algorithm>
 
 #include <sys/wait.h>
 #include <sys/types.h>
+#include <unistd.h>
 using namespace std;
 
 
 
 class fileOrDir {
-public:
+  public:
     string name;
     string timeStamp;
     bool isDirectory; // either a regular file or a directory
@@ -28,13 +30,13 @@ public:
 };
 
 class Lfile {
-public:
+  public:
     unsigned long address;
     Lfile *next;
 };
 
 class diskBlock {
-public:
+  public:
     int start;
     int end;
     bool isFree;
@@ -42,7 +44,7 @@ public:
 
 
 class treeNode {
-public:
+  public:
     fileOrDir *data;
     vector<treeNode*> children;
     treeNode *parent;
@@ -250,6 +252,8 @@ void allocateBlocks(fileOrDir *file, int blockSize) {
 
 
 int main(int argc, char** argv) {
+    string TERMINAL_PATH = "./";
+    vector<string> DIR_LIST_VECTOR;
     int diskSize;
     int blockSize;
     char *fl; //file_list
@@ -325,6 +329,7 @@ int main(int argc, char** argv) {
                     dir->allocatedBytes = 0;
                     root->data = dir;
                     root->parent = NULL;
+                    DIR_LIST_VECTOR.push_back(line);
                     // test
                     // cout << dir->name << " " << dir->fileSize << " " <<dir->isDirectory <<
                     // " " << dir->timeStamp <<endl;
@@ -343,6 +348,7 @@ int main(int argc, char** argv) {
                     child->data = dir;
                     child->parent = NULL;
                     addChild(parent, child);
+                    DIR_LIST_VECTOR.push_back(line);
                     // printDirChildren(parent);
                 }
                 count ++;
@@ -395,8 +401,9 @@ int main(int argc, char** argv) {
         string input = "";
         string input2 = "";
         string input3 = "";
+
         //getcwd(cwd, sizeof(cwd));
-        cout << cwd << "/Enter a command to manipulate the file system:: ";
+        cout << "Enter a command to manipulate the file system: " << TERMINAL_PATH << "$";
         getline(cin, input);
         
         size_t first_space = input.find(" ");
@@ -407,9 +414,22 @@ int main(int argc, char** argv) {
             size_t second_space = input2.find(" ");
             if(second_space==string::npos){
                 //do the two space stuff here
-                cout << input << endl;
                 if(input.compare("cd") == 0){
-                    
+                    string cd_temp = TERMINAL_PATH + input2;
+                    // if(chdir(input2.c_str())==-1){
+                    //     cout << "Not a valid directory!" << endl;
+                    // }
+                    if (find(DIR_LIST_VECTOR.begin(), DIR_LIST_VECTOR.end(), cd_temp) != DIR_LIST_VECTOR.end()){
+                      // Element in vector.
+                      TERMINAL_PATH = cd_temp;
+                    }else{
+                        cout << cd_temp << " Is not a valid directory!" << endl;
+                        cout << "Below are you list of valid directories :: " << endl;
+                        for(int x = 0 ; x<DIR_LIST_VECTOR.size(); x++){
+                            cout << DIR_LIST_VECTOR[x] << endl;
+                        }
+                        cout << "USAGE :: cd <VALID DIRECTORY>" << endl;
+                    }
                 }else if(input.compare("mkdir") == 0){
                     
                 }else if(input.compare("create") == 0){
@@ -417,7 +437,7 @@ int main(int argc, char** argv) {
                 }else if(input.compare("delete") == 0){
                     
                 }else{
-                    cout << "Command fuck found!" << endl;
+                    cout << "Command not found!" << endl;
                 }
             }else{
                 //do the three space stuff here
