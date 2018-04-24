@@ -29,12 +29,6 @@ class fileOrDir {
     list<int> blockAddresses;
 };
 
-class Lfile {
-  public:
-    unsigned long address;
-    Lfile *next;
-};
-
 class diskBlock {
   public:
     int start;
@@ -54,6 +48,16 @@ class treeNode {
 list<diskBlock*> diskBlocks;
 treeNode *root = new treeNode;
 treeNode *currentDir = new treeNode;
+
+string rebuildTerminalPath(vector<string> vec){
+    string returnVal = "";
+    cout << "REBUILDING STRINGS " << endl;
+    for(int x = 0; x<vec.size(); x++){
+        cout << vec[x] << endl;
+        returnVal += vec[x];
+    }
+    return returnVal;
+}
 
 int calculateBytesUnused(int fileSize, int blockSize) {
   if (fileSize == 0) {
@@ -252,7 +256,11 @@ void allocateBlocks(fileOrDir *file, int blockSize) {
 
 
 int main(int argc, char** argv) {
+    //terminal path vector for interactive env
+    vector<string> TERMINAL_PATH_VECTOR;
+    TERMINAL_PATH_VECTOR.push_back("./");
     string TERMINAL_PATH = "./";
+
     vector<string> DIR_LIST_VECTOR;
     int diskSize;
     int blockSize;
@@ -422,6 +430,7 @@ int main(int argc, char** argv) {
                     if (find(DIR_LIST_VECTOR.begin(), DIR_LIST_VECTOR.end(), cd_temp) != DIR_LIST_VECTOR.end()){
                       // Element in vector.
                       TERMINAL_PATH = cd_temp;
+                      TERMINAL_PATH_VECTOR.push_back(cd_temp);
                     }else{
                         cout << cd_temp << " Is not a valid directory!" << endl;
                         cout << "Below are you list of valid directories :: " << endl;
@@ -431,6 +440,25 @@ int main(int argc, char** argv) {
                         cout << "USAGE :: cd <VALID DIRECTORY>" << endl;
                     }
                 }else if(input.compare("mkdir") == 0){
+                    //TODO put in tree
+                    if(input2.substr(0,1).compare("/") == 0){
+                        cout << "mkdir: " << input2 << " Permission denied" << endl; 
+                    }else{
+                        treeNode* the_parent = findNode(root, TERMINAL_PATH);
+                        fileOrDir *dir = new fileOrDir;
+                        dir->name = TERMINAL_PATH + "/" +input2;
+                        dir->fileSize = 0;
+                        dir->isDirectory = true;
+                        dir->timeStamp = "";
+                        dir->allocatedBytes = 0;
+
+                        treeNode *child = new treeNode;
+                        child->data = dir;
+                        child->parent = NULL;
+                        addChild(the_parent, child);
+                        DIR_LIST_VECTOR.push_back(TERMINAL_PATH + "/" + input2);
+                    }
+
                     
                 }else if(input.compare("create") == 0){
                     
@@ -455,11 +483,13 @@ int main(int argc, char** argv) {
         }else{
             //all of the one thing commands
             if(input.compare("cd..") == 0){
-                cout << "Cd thing!" << endl;
+                TERMINAL_PATH_VECTOR.pop_back();
+                TERMINAL_PATH = rebuildTerminalPath(TERMINAL_PATH_VECTOR);
             }else if(input.compare("ls") == 0){
-                for (int i = 0; i < (currentDir->children).size(); i++) {
-                    cout << currentDir->children[i] -> data -> name << " is a " <<
-                    ((currentDir -> children[i] -> data -> isDirectory) ? "directory" : "file") << endl;
+                treeNode* temp_currentNode = findNode(root, TERMINAL_PATH);
+                for (int i = 0; i < (temp_currentNode->children).size(); i++) {
+                    cout << temp_currentNode->children[i]->data->name << " is a " <<
+                    ((temp_currentNode -> children[i] -> data -> isDirectory) ? "directory" : "file") << endl;
                 }
                 // cout << "ls thing!" << endl;
             }else if(input.compare("exit") == 0){
