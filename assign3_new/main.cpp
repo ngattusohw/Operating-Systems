@@ -16,7 +16,7 @@ using namespace std;
 class fileOrDir {
   public:
     string name;
-    char *timeStamp;
+    string timeStamp;
     bool isDirectory; // either a regular file or a directory
     long fileSize;
 		int allocatedBytes;
@@ -72,7 +72,9 @@ void printDirectory(treeNode *root) {
 			temp = queue.front();
 			cout << temp->data->name << endl;
 			queue.pop_front();
-			for (int i = 0; i < (temp->children).size(); ++i) {
+      cout << "Child queue size: " << temp->children.size() << endl;
+			for (int i = 0; i < temp->children.size(); ++i) {
+        cout << "Child: " << temp->children[i]->data->name << endl;
         queue.push_back(temp -> children[i]);
       }
 		}
@@ -87,7 +89,7 @@ void printDirChildren(treeNode *node) {
 			cout << node->children[i]->data->name << endl;
 		}
 	}
-	printf("\n");
+	cout << endl;
 }
 
 
@@ -100,12 +102,15 @@ treeNode* findNode(treeNode *root, string name) {
     queue.push_back(root);
     while(!queue.empty()) {
       temp = queue.front();
+      cout << "Current Dir: " << temp->data->name << " pen15: " << name << endl;
       if (temp->data->name == name) {
+        cout << "Found Dir: " << temp->data->name << endl;
         // found it
         break;
       }
       queue.pop_front();
       for (int i = 0; i < (temp->children).size(); i++) {
+        cout << "Chilean miner: " << temp->children[i]->data->name << endl;
         queue.push_back(temp -> children[i]);
       }
     }
@@ -124,12 +129,14 @@ void addChild(treeNode* parent, treeNode* child) {
 
 
 // Get timestamp
+/*
 char* getTimeStamp() {
 	chrono::system_clock::time_point today  = chrono::system_clock::now();
 	std::time_t tt = chrono::system_clock::to_time_t (today);
 	char *time_stamp = ctime(&tt);
 	return time_stamp;
 }
+*/
 
 
 // void allocateBlocks(fileOrDir *f, int blockSize) {
@@ -203,7 +210,7 @@ int main(int argc, char** argv) {
         }
     }
 		// test
-		cout << dl << " " << fl << " " << diskSize << " " << blockSize << " " << getTimeStamp() << endl;
+		cout << dl << " " << fl << " " << diskSize << " " << blockSize << " " << "Ayy" << endl;
     // Constructor called
 		diskBlock *dBlock = new diskBlock;
 
@@ -231,7 +238,7 @@ int main(int argc, char** argv) {
 						dir->name = line.substr(0, line.find_last_of("/"));
 						dir->fileSize = 0;
 						dir->isDirectory = true;
-						dir->timeStamp = getTimeStamp();
+						dir->timeStamp = "";
 						dir->allocatedBytes = 0;
 						root->data = dir;
 						root->parent = NULL;
@@ -244,7 +251,7 @@ int main(int argc, char** argv) {
 						dir->name = line;
 						dir->fileSize = 0;
 						dir->isDirectory = true;
-						dir->timeStamp = getTimeStamp();
+						dir->timeStamp = "";
 						dir->allocatedBytes = 0;
 						cout << line.substr(0, line.find_last_of("/")) << "substring" <<endl;
           	treeNode *parent = findNode(root, line.substr(0, line.find_last_of("/")));
@@ -272,7 +279,7 @@ int main(int argc, char** argv) {
   }
 	// printDirectory(root);
 
-
+  cout << "WE BE ADDIN FILS NAU" << endl;
 	string ID;
 	int fileSize;
 	string d1;
@@ -292,7 +299,7 @@ int main(int argc, char** argv) {
   				file->name = dir;
   				file->fileSize = fileSize;
   				file->isDirectory = false;
-  				file->timeStamp =  getTimeStamp();
+  				file->timeStamp =  d1 + " " + d2 + " " + d3;
 
           treeNode* parent = findNode(root, dir.substr(0, dir.find_last_of("/")));
           treeNode* child = new treeNode;
