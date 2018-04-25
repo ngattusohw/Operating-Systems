@@ -230,12 +230,12 @@ void allocateBlocks(fileOrDir *file, int blockSize) {
     int diff = (file->fileSize) - (file->allocatedBytes);
     bool success = false;
 
-    cout << "This is testing mother fucker (diff, blocksize) " << diff << ", " << blockSize << endl; 
+    cout << "This is testing mother fucker (diff, blocksize) " << diff << ", " << blockSize << endl;
     int numBlocksNeeded = ceil((float)diff / (float)blockSize);
     if (numBlocksNeeded == 0) {
         return;
     }
-    
+
     cout << numBlocksNeeded << "numBlocksNeeded" << endl;
 
     //cout << numBlocksNeeded << "numBlocksNeeded" << endl;
@@ -514,7 +514,7 @@ int main(int argc, char** argv) {
                     newfile->name = TERMINAL_PATH + "/" + input2;
                     newfile->fileSize = 0;
                     newfile->isDirectory = false;
-                    newfile->timeStamp =  d1 + " " + d2 + " " + d3;
+                    newfile->timeStamp =  getTimeStamp();
                     newfile->allocatedBytes = 0;
                     treeNode *child = new treeNode;
                     child->data = newfile;
