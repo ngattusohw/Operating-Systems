@@ -327,8 +327,8 @@ void allocateBlocks(fileOrDir *file, int blockSize) {
 
 void deallocateBlocks(fileOrDir *file, int blockSize) {
     // delete a number of bytes from the file
-
     int diff = file->allocatedBytes - file->fileSize;
+    cout << "Diff :: " << diff << " file->allocateBytes " << file->allocatedBytes << "File size : " << file->fileSize << endl;
     int numBlocksRemove = diff/blockSize;
     bool success = false;
     while (numBlocksRemove>0) {
@@ -338,10 +338,59 @@ void deallocateBlocks(fileOrDir *file, int blockSize) {
         addressIterator--;
         // calculate the blockID to remove
         int blockID = *addressIterator / blockSize;
+        cout << "This is the blockId " << blockID << endl; 
         list<diskBlock*>::iterator blockIterator;
         blockIterator = diskBlocks.begin();
         while (blockIterator != diskBlocks.end()) {
+            if((*blockIterator)->start <= blockID && (*blockIterator)->end >= blockID){
+                //split
+                cout << "BLOCK ID " << blockID << endl; 
+                diskBlock *newBlock = new diskBlock;
+                newBlock->start = blockID;
+                newBlock->end = blockID;
+                newBlock->isFree = true;
+                if(blockID == (*blockIterator)->end){
+                    //only removing the last block
+                    list<diskBlock*>::iterator nextNode = blockIterator;
+                    advance(nextNode,1);
 
+                    if(nextNode == diskBlocks.end()){
+                        diskBlocks.push_back(newBlock);
+                    }else{
+                        //not adding at the back, need to figure out where to add
+                        (*blockIterator)->end = blockID-1;
+                        advance(blockIterator,1);
+                        diskBlocks.insert(blockIterator, newBlock);
+                    }
+                }else if(blockID == (*blockIterator)->start){
+                    //removing the front
+                    (*blockIterator)->start = blockID+1;
+                    diskBlocks.insert(blockIterator, newBlock);
+                }else{
+                    //not the front, somewhere in the middle
+                    diskBlock *whateverYouWantIDontCare = new diskBlock;
+                    whateverYouWantIDontCare->start = blockID+1;
+                    whateverYouWantIDontCare->end = (*blockIterator)->end;
+                    whateverYouWantIDontCare->isFree = false;
+
+                    (*blockIterator)->end = blockID-1;
+
+                    list<diskBlock*>::iterator nextNode = blockIterator;
+                    advance(nextNode,1);
+
+                    if(nextNode == diskBlocks.end()){
+                        diskBlocks.push_back(newBlock);
+                        diskBlocks.push_back(whateverYouWantIDontCare);
+                    }else{
+                        //not adding at the back, need to figure out where to add
+                        advance(blockIterator,1);
+                        diskBlocks.insert(blockIterator, whateverYouWantIDontCare);
+                        diskBlocks.insert(prev(blockIterator), newBlock);
+                    }
+                }
+            }
+            advance(blockIterator,1);
+            //cout << " Only once? " << endl;
         }
         numBlocksRemove--;
         // update the file info
@@ -677,10 +726,12 @@ int main(int argc, char** argv) {
                             }
                             else {
                                 found->data->fileSize -= bytesToRemove;
+                                cout << "Error happers here " << endl;
                                 deallocateBlocks(found->data,blockSize);
+                                cout << "Error penis? " << endl;
                             }
                         }catch(...){
-                            cout << "Please enter the correct parameter types! Usage:: append <filename:string> <bytes:int>" << endl;
+                            cout << "Please enter the correct parameter types! Usage:: remove <filename:string> <bytes:int>" << endl;
                         }
                     }
                 }else{
