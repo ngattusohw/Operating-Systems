@@ -244,24 +244,24 @@ void mergeLDisk() {
 }
 
 void allocateBlocks(fileOrDir *file, int blockSize) {
-    cout << file->fileSize << ":: fileSize ... allocatedBytes ::" << file->allocatedBytes << endl;
+    //cout << file->fileSize << ":: fileSize ... allocatedBytes ::" << file->allocatedBytes << endl;
     int diff = (file->fileSize) - (file->allocatedBytes);
     bool success = false;
 
-    cout << "This is testing mother fucker (diff, blocksize) " << diff << ", " << blockSize << endl;
+    //cout << "This is testing mother fucker (diff, blocksize) " << diff << ", " << blockSize << endl;
     int numBlocksNeeded = ceil((float)diff / (float)blockSize);
     if (numBlocksNeeded == 0) {
         return;
     }
 
-    cout << numBlocksNeeded << "numBlocksNeeded" << endl;
+    //cout << numBlocksNeeded << "numBlocksNeeded" << endl;
 
     //cout << numBlocksNeeded << "numBlocksNeeded" << endl;
 
     list<diskBlock*>::iterator blockIterator;
     blockIterator = diskBlocks.begin();
     while (numBlocksNeeded > 0 && blockIterator != diskBlocks.end()) {
-        cout << "In the while loop, end ";
+        //cout << "In the while loop, end ";
         // found a free disk block
         if((*blockIterator)->isFree == true) {
             int numFreeBlocks = (*blockIterator)->end - (*blockIterator)->start + 1;
@@ -278,7 +278,7 @@ void allocateBlocks(fileOrDir *file, int blockSize) {
                     file->blockAddresses.push_back(i*blockSize);
                 }
                 // back to check condition
-                cout << "Testing append " << endl;
+                //cout << "Testing append " << endl;
             }
             // case 2: numFreeBlocks >= numBlocksNeeded
             else  {
@@ -299,7 +299,7 @@ void allocateBlocks(fileOrDir *file, int blockSize) {
                 file->allocatedBytes += numBlocksNeeded * blockSize;
                 numBlocksNeeded = 0;
                 success = true;
-                cout << "Testing append block " << endl;
+                //cout << "Testing append block " << endl;
                 break;
             }
         }
@@ -330,6 +330,7 @@ void deallocateBlocks(fileOrDir *file, int blockSize) {
     int diff = file->allocatedBytes - file->fileSize;
     cout << "Diff :: " << diff << " file->allocateBytes " << file->allocatedBytes << "File size : " << file->fileSize << endl;
     int numBlocksRemove = diff/blockSize;
+    int totalBlocksRemove = numBlocksRemove;
     bool success = false;
     while (numBlocksRemove>0) {
         list<int>::iterator addressIterator;
@@ -398,6 +399,12 @@ void deallocateBlocks(fileOrDir *file, int blockSize) {
         // remove the block
         // file->blockAddresses.erase();
     }
+
+    // removing blocks from Lfile
+    for (int i = 0; i < totalBlocksRemove; i++) {
+        file->blockAddresses.pop_back();
+    }
+    
     mergeLDisk();
 }
 
@@ -698,7 +705,7 @@ int main(int argc, char** argv) {
                                 }
                                 else {
                                     found->data->fileSize += stoi(input3);
-                                    cout << " Printing out the input3 " << input3 << endl;
+                                    //cout << " Printing out the input3 " << input3 << endl;
                                     allocateBlocks(found->data,blockSize);
                                 }
                             }catch(...){
@@ -719,16 +726,16 @@ int main(int argc, char** argv) {
                         cout << "This is the found treeNode" << found->data->name << endl;
                         try{
                             int bytesToRemove = stoi(input3);
-                            cout << " Printing out the input3 " << input3 << endl;
+                            //cout << " Printing out the input3 " << input3 << endl;
                             if (found->data->fileSize < bytesToRemove) {
                                 cout << "Error: you cannot remove " << bytesToRemove <<
                                 " bytes " << "from file" << found->data->name << endl;
                             }
                             else {
                                 found->data->fileSize -= bytesToRemove;
-                                cout << "Error happers here " << endl;
+                                //cout << "Error happers here " << endl;
                                 deallocateBlocks(found->data,blockSize);
-                                cout << "Error penis? " << endl;
+                                //cout << "Error penis? " << endl;
                             }
                         }catch(...){
                             cout << "Please enter the correct parameter types! Usage:: remove <filename:string> <bytes:int>" << endl;
