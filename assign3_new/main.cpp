@@ -506,8 +506,10 @@ int main(int argc, char** argv) {
         }else{
             //all of the one thing commands
             if(input.compare("cd..") == 0){
-                TERMINAL_PATH_VECTOR.pop_back();
-                TERMINAL_PATH = rebuildTerminalPath(TERMINAL_PATH_VECTOR);
+                if(TERMINAL_PATH_VECTOR.size()!=1){
+                    TERMINAL_PATH_VECTOR.pop_back();
+                    TERMINAL_PATH = rebuildTerminalPath(TERMINAL_PATH_VECTOR);
+                }
             }else if(input.compare("ls") == 0){
                 treeNode* temp_currentNode = findNode(root, TERMINAL_PATH);
                 for (int i = 0; i < (temp_currentNode->children).size(); i++) {
