@@ -453,9 +453,29 @@ int main(int argc, char** argv) {
 
                     
                 }else if(input.compare("create") == 0){
-                    
+                    fileOrDir *newfile = new fileOrDir;
+                    newfile->name = currentDir->data->name + "/" + input2;
+                    newfile->fileSize = 0;
+                    newfile->isDirectory = false;
+                    newfile->timeStamp =  d1 + " " + d2 + " " + d3;
+                    newfile->allocatedBytes = 0;
+                    treeNode *child = new treeNode;
+                    child->data = newfile;
+                    child->parent = NULL;
+                    addChild(currentDir, child);
                 }else if(input.compare("delete") == 0){
-                    
+                    treeNode* found = findNode(root, input2);
+                    if (found == NULL) {
+                        cout << "Error: not find the file/directory" << endl;
+                        return -1;
+                    }
+                    treeNode *parent = found->parent;
+                    // if (parent->data->isDirectory) {
+                    //   //todo
+                    // }
+                    // else {
+                    //   //todo
+                    // }
                 }else{
                     cout << "Command not found!" << endl;
                 }
@@ -464,7 +484,18 @@ int main(int argc, char** argv) {
                 input3 = input2.substr(second_space+1);
                 input2 = input2.substr(first_space+1,second_space);
                 if(input.compare("append") == 0){
-                    
+                    treeNode* found = findNode(root, input2);
+                    if (found == NULL) {
+                        cout << "Error: not find the file/directory" << endl;
+                        return -1;
+                    }
+                    if (found->data->isDirectory) {
+                        cout << "Error: please give a file name" << endl;
+                    }
+                    else {
+                        found->data->fileSize += stoi(input3);
+                        allocateBlocks(found->data,blockSize);
+                    }
                 }else if(input.compare("remove") == 0){
                     
                 }else{
