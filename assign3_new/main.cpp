@@ -146,7 +146,7 @@ int countFragmentation(treeNode *root, int blockSize) {
             }
         }
     }
-    
+
     return frag;
 }
 
@@ -222,7 +222,7 @@ string getTimeStamp() {
 void mergeLDisk() {
     list<diskBlock*>::iterator current, next;
     current = diskBlocks.begin();
-    
+
     while (current != diskBlocks.end()) {
         next = current;
         advance (next,1);
@@ -247,17 +247,17 @@ void allocateBlocks(fileOrDir *file, int blockSize) {
     cout << file->fileSize << ":: fileSize ... allocatedBytes ::" << file->allocatedBytes << endl;
     int diff = (file->fileSize) - (file->allocatedBytes);
     bool success = false;
-    
+
     cout << "This is testing mother fucker (diff, blocksize) " << diff << ", " << blockSize << endl;
     int numBlocksNeeded = ceil((float)diff / (float)blockSize);
     if (numBlocksNeeded == 0) {
         return;
     }
-    
+
     cout << numBlocksNeeded << "numBlocksNeeded" << endl;
-    
+
     //cout << numBlocksNeeded << "numBlocksNeeded" << endl;
-    
+
     list<diskBlock*>::iterator blockIterator;
     blockIterator = diskBlocks.begin();
     while (numBlocksNeeded > 0 && blockIterator != diskBlocks.end()) {
@@ -308,7 +308,7 @@ void allocateBlocks(fileOrDir *file, int blockSize) {
             blockIterator++;
         }
     }
-    
+
     // unable to find free blocks
     if (success == false) {
         // disk is full
@@ -317,7 +317,7 @@ void allocateBlocks(fileOrDir *file, int blockSize) {
         mergeLDisk();
         return;
     }
-    
+
     mergeLDisk();
 }
 
@@ -327,7 +327,7 @@ void allocateBlocks(fileOrDir *file, int blockSize) {
 
 void deallocateBlocks(fileOrDir *file, int blockSize) {
     // delete a number of bytes from the file
-    
+
     int diff = file->allocatedBytes - file->fileSize;
     int numBlocksRemove = diff/blockSize;
     bool success = false;
@@ -341,7 +341,7 @@ void deallocateBlocks(fileOrDir *file, int blockSize) {
         list<diskBlock*>::iterator blockIterator;
         blockIterator = diskBlocks.begin();
         while (blockIterator != diskBlocks.end()) {
-            
+
         }
         numBlocksRemove--;
         // update the file info
@@ -356,7 +356,19 @@ void deallocateBlocks(fileOrDir *file, int blockSize) {
 
 void destroyTree(treeNode* root) {
     // TODO
-    
+    treeNode* temp = root;
+    treeNode* t;
+    for (int i = 0; i<temp->children.size();i++) {
+      if (temp->children[i]->children.size()>0) {
+        destroyTree(temp->children[i]);
+      }
+      t = temp->children[i];
+      delete temp->data;
+      delete temp; //freed memory
+      temp = t;
+    }
+    delete root; //freed memory
+    root = NULL; //pointed dangling ptr to NULL
 }
 
 
@@ -370,7 +382,7 @@ int main(int argc, char** argv) {
     vector<string> TERMINAL_PATH_VECTOR;
     TERMINAL_PATH_VECTOR.push_back("./");
     string TERMINAL_PATH = "./";
-    
+
     vector<string> DIR_LIST_VECTOR;
     int diskSize;
     int blockSize;
@@ -383,7 +395,7 @@ int main(int argc, char** argv) {
         return -1;
     }
     for (int i = 1; i < argc - 1; i = i + 2) {
-        
+
         if  (!strcmp(argv[i], "-s")) {
             if (argv[i+1]) {
                 diskSize = atoi(argv[i+1]);
@@ -392,7 +404,7 @@ int main(int argc, char** argv) {
                 cout << "ERROR: Invalid value for disk size" << endl;
             }
         }
-        
+
         if (!strcmp(argv[i], "-b")) {
             if (argv[i+1]) {
                 blockSize = atoi(argv[i+1]);
@@ -401,14 +413,14 @@ int main(int argc, char** argv) {
                 cout << "ERROR: Invalid value for block size" << endl;
             }
         }
-        
+
         else if (!strcmp(argv[i], "-f")) {
             // -f <file_list.txt>
             if (argv[i+1]) {
                 fl = argv[i+1];
             }
         }
-        
+
         else if (!strcmp(argv[i], "-d")) {
             // -d <dir_list.txt>
             if (argv[i+1]) {
@@ -420,12 +432,12 @@ int main(int argc, char** argv) {
     //cout << dl << " " << fl << " " << diskSize << " " << blockSize << " " << "Ayy" << endl;
     // Constructor called
     diskBlock *dBlock = new diskBlock;
-    
+
     dBlock->start = 0;
     dBlock->end = ceil((float)diskSize / (float)blockSize) - 1;
     dBlock->isFree = true;
     diskBlocks.push_front(dBlock);
-    
+
     // Initialize directories
     ifstream directories (dl);
     ifstream files (fl);
@@ -433,7 +445,7 @@ int main(int argc, char** argv) {
     currentDir = root;
     string line;
     int count = 0;
-    
+
     if (directories) {
         while (getline(directories, line)) {
             if (line.size() != 0) {
@@ -479,7 +491,7 @@ int main(int argc, char** argv) {
         return -1;
     }
     // printDirectory(root);
-    
+
     string ID;
     int fileSize;
     string d1;
@@ -496,7 +508,7 @@ int main(int argc, char** argv) {
             file->timeStamp =  d1 + " " + d2 + " " + d3;
             file->allocatedBytes = 0;
             cout << file->timeStamp << endl;
-            
+
             treeNode* parent = findNode(root, dir.substr(0, dir.find_last_of("/")));
             treeNode* child = new treeNode;
             child->data = file;
@@ -512,19 +524,19 @@ int main(int argc, char** argv) {
     }
     cout << "print directory" << endl;
     printDirectory(root);
-    
-    
-    
+
+
+
     char cwd[1024];
     for(;;){
         string input = "";
         string input2 = "";
         string input3 = "";
-        
+
         //getcwd(cwd, sizeof(cwd));
         cout << "Enter a command to manipulate the file system: " << TERMINAL_PATH << "$";
         getline(cin, input);
-        
+
         size_t first_space = input.find(" ");
         if(first_space!=string::npos){
             //do all the multiline commands here
@@ -563,7 +575,7 @@ int main(int argc, char** argv) {
                         dir->isDirectory = true;
                         dir->timeStamp = "";
                         dir->allocatedBytes = 0;
-                        
+
                         treeNode *child = new treeNode;
                         child->data = dir;
                         child->parent = NULL;
@@ -612,7 +624,7 @@ int main(int argc, char** argv) {
                         parent->data->timeStamp = getTimeStamp();
                     }
                 }
-                
+
                 else{
                     cout << "Command not found!" << endl;
                 }
