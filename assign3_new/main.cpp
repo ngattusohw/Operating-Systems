@@ -226,7 +226,7 @@ void allocateBlocks(fileOrDir *file, int blockSize) {
                 diskBlocks.insert(blockIterator,tempBlock);
                 // split the block
                 (*blockIterator)->start = tempBlock->end + 1;
-                file->allocatedBytes += numFreeBlocks * blockSize;
+                file->allocatedBytes += numBlocksNeeded * blockSize;
                 numBlocksNeeded = 0;
                 success = true;
                 cout << "Testing append block " << endl;
