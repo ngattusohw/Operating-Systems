@@ -46,7 +46,7 @@ class treeNode {
 };
 
 // global variables
-list<diskBlock*> diskBlocks;
+list<diskBlock*> diskBlocks; //LDISK
 treeNode *root = new treeNode;
 treeNode *currentDir = new treeNode;
 
@@ -596,7 +596,16 @@ int main(int argc, char** argv) {
                 printAllFiles(root);
             }else if(input.compare("prdisk") == 0){
                 //TODO
-                
+                for (list<diskBlock*>::iterator it = diskBlocks.begin(); it != diskBlocks.end(); ++it){
+                    if((*it)->isFree){
+                        cout << "Free: " << (*it)->start << " - " << (*it)->end << endl;
+                    }else{
+                        cout << "In use: " << (*it)->start << " - " << (*it)->end << endl;
+                    }
+                }
+
+
+
                 cout << "Block size :: " << blockSize <<" , Fragmentation :: " << countFragmentation(root, blockSize) << endl;
             }else{
                 cout << "Command not found!" << endl;
