@@ -458,8 +458,9 @@ int main(int argc, char** argv) {
                         DIR_LIST_VECTOR.push_back(TERMINAL_PATH + "/" + input2);
                     }
                 }else if(input.compare("create") == 0){
+                    treeNode* the_parent = findNode(root, TERMINAL_PATH);
                     fileOrDir *newfile = new fileOrDir;
-                    newfile->name = currentDir->data->name + "/" + input2;
+                    newfile->name = TERMINAL_PATH + "/" + input2;
                     newfile->fileSize = 0;
                     newfile->isDirectory = false;
                     newfile->timeStamp =  d1 + " " + d2 + " " + d3;
@@ -467,7 +468,7 @@ int main(int argc, char** argv) {
                     treeNode *child = new treeNode;
                     child->data = newfile;
                     child->parent = NULL;
-                    addChild(currentDir, child);
+                    addChild(the_parent, child);
                 }else if(input.compare("delete") == 0){
                     //delete the file or directory
                     treeNode* found = findNode(root, input2);
