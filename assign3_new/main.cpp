@@ -595,8 +595,7 @@ int main(int argc, char** argv) {
                     child->data = newfile;
                     child->parent = NULL;
                     addChild(the_parent, child);
-                }
-                else if(input.compare("delete") == 0){
+                }else if(input.compare("delete") == 0){
                     // TODO
                     //delete the file or directory
                     treeNode* found = findNode(root, input2);
@@ -624,13 +623,10 @@ int main(int argc, char** argv) {
                         // update the timestamp of the parent node
                         parent->data->timeStamp = getTimeStamp();
                     }
-                }
-
-                else{
+                }else{
                     cout << "Command not found!" << endl;
                 }
-            }
-            else{
+            }else{
                 //do the three space stuff here
                 input3 = input2.substr(second_space+1);
                 input2 = input2.substr(0,second_space);
@@ -668,11 +664,9 @@ int main(int argc, char** argv) {
                     treeNode* found = findNode(root, input2);
                     if (found == NULL) {
                         cout << "Error: not find the file/directory" << endl;
-                    }
-                    else if (found->data->isDirectory) {
+                    }else if (found->data->isDirectory) {
                         cout << "Error: please give a file name" << endl;
-                    }
-                    else {
+                    }else{
                         cout << "This is the found treeNode" << found->data->name << endl;
                         try{
                             int bytesToRemove = stoi(input3);
@@ -689,9 +683,8 @@ int main(int argc, char** argv) {
                             cout << "Please enter the correct parameter types! Usage:: append <filename:string> <bytes:int>" << endl;
                         }
                     }
-                }
-                else{
-                    cout << "Incorrect argument types. Usage: append <filename:string> <bytes:int>" << endl;
+                }else{
+                    cout << "Command not found!" << endl;
                 }
             }
         }else{
@@ -726,6 +719,14 @@ int main(int argc, char** argv) {
                 // print out all file information
                 printAllFiles(root);
             }else if(input.compare("prdisk") == 0){
+                for (list<diskBlock*>::iterator it = diskBlocks.begin(); it != diskBlocks.end(); ++it){
+                    if((*it)->isFree){
+                        cout << "Free: " << (*it)->start << " - " << (*it)->end << endl;
+                    }else{
+                        cout << "In use: " << (*it)->start << " - " << (*it)->end << endl;
+                    }
+                }
+
                 cout << "Block size :: " << blockSize <<" , Fragmentation :: " << countFragmentation(root, blockSize) << endl;
             }else{
                 cout << "Command not found!" << endl;
