@@ -363,12 +363,13 @@ void destroyTree(treeNode* root) {
         destroyTree(temp->children[i]);
       }
       t = temp->children[i];
+      temp->data = NULL;
       delete temp->data;
+      temp = NULL;
       delete temp; //freed memory
       temp = t;
     }
-    delete root; //freed memory
-    root = NULL; //pointed dangling ptr to NULL
+    root = NULL; 
 }
 
 
