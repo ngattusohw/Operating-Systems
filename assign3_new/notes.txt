@@ -11,3 +11,13 @@ If a node is free, the total free space is blocks * block size (if there are 3 b
 LFile:
 Number of file blocks is real size / block size (4423/16)
 Number of nodes = number of file blocks
+
+Holy fuck what the hell is this.?
+In allocatedBlocks, it checks whether the current node is free or not. Then it turns the entire node into numFreeBlocks.
+Yup, you heard right, THE ENTIRE GODDAMN BLOCK. Fuck :) B==========D~~~~~~~
+What we've got here is a failure to communicate. A widdle fucky wucky if I've ever seen one. I'm mad.
+Alright gang, here's the plan. We take the file size and block size and divide those little fuckers, and take the ceiling.
+That's how many blocks we need. Then we increment allocatedBytes by that number * block size. Next we gotta fuck with the nodes and split em and shit.
+Hole up, I just noticed some shit. The first half of the if statement is right, I think. The second half tho has like 1 wrong line.
+It's the same shit I said before file->allocatedBytes += numFreeBlocks * blockSize should be-
+file->allocatedBytes += numBlocksNeeded * blockSize
