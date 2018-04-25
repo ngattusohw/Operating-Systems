@@ -60,14 +60,14 @@ string rebuildTerminalPath(vector<string> vec){
 }
 
 int calculateBytesUnused(int fileSize, int blockSize) {
-  if (fileSize == 0) {
-    return 0;
-  }
-  int blocks = ceil((float)fileSize / (float)blockSize);
-  if (blocks == fileSize / blockSize) {
-    return 0;
-  }
-  return blockSize - (fileSize - ((blocks - 1) * blockSize));
+    if (fileSize == 0) {
+        return 0;
+    }
+    int blocks = ceil((float)fileSize / (float)blockSize);
+    if (blocks == fileSize / blockSize) {
+        return 0;
+    }
+    return blockSize - (fileSize - ((blocks - 1) * blockSize));
 }
 
 
@@ -100,7 +100,6 @@ void printDirChildren(treeNode *node) {
     cout << endl;
 }
 
-
 // BST
 treeNode* findNode(treeNode *root, string name) {
     if (root != NULL) {
@@ -124,25 +123,19 @@ treeNode* findNode(treeNode *root, string name) {
     return NULL;
 }
 
-
-
 void addChild(treeNode* parent, treeNode* child) {
     //cout << "hello here" << endl;
     parent->children.push_back(child);
     child->parent = parent;
 }
 
-
 // Get timestamp
-/*
- char* getTimeStamp() {
- chrono::system_clock::time_point today  = chrono::system_clock::now();
- std::time_t tt = chrono::system_clock::to_time_t (today);
- char *time_stamp = ctime(&tt);
- return time_stamp;
+char* getTimeStamp() {
+    chrono::system_clock::time_point today  = chrono::system_clock::now();
+    std::time_t tt = chrono::system_clock::to_time_t (today);
+    char *time_stamp = ctime(&tt);
+    return time_stamp;
  }
- */
-
 
 // Used to merge blocks in the Ldisk
 void mergeLDisk() {
@@ -169,19 +162,22 @@ void mergeLDisk() {
     }
 }
 
+void splitLDisk(vector<int> deadBlocks) {
+    // make iterator for
+}
 
 void printFileInfo(fileOrDir *file) {
-    cout << "File Name: " << file->name << "File Size: " << file->fileSize << "Timestamp: " << file->timeStamp << endl;
+    cout << "File Name: " << file->name << " File Size: " << file->fileSize << " Timestamp: " << file->timeStamp << endl;
     list<int>::iterator it;
     cout << "Block addresses: ";
     for (it = file->blockAddresses.begin(); it != file->blockAddresses.end(); it++) {
         cout << *it << " ";
     }
+    cout << endl;
 }
 
-
 void allocateBlocks(fileOrDir *file, int blockSize) {
-    cout << file->fileSize << "fileSize" << endl;
+    //cout << file->fileSize << "fileSize" << endl;
     int diff = file->fileSize - file->allocatedBytes;
     bool success = false;
     
@@ -190,17 +186,15 @@ void allocateBlocks(fileOrDir *file, int blockSize) {
         return;
     }
     
-    cout << numBlocksNeeded << "numBlocksNeeded" << endl;
+    //cout << numBlocksNeeded << "numBlocksNeeded" << endl;
     list<diskBlock*>::iterator blockIterator;
     blockIterator = diskBlocks.begin();
     while (numBlocksNeeded > 0 && blockIterator != diskBlocks.end()) {
         // found a free disk block
         if((*blockIterator)->isFree == true) {
             int numFreeBlocks = (*blockIterator)->end - (*blockIterator)->start + 1;
-            cout << numBlocksNeeded << "numBlocksNeeded" << endl;
-            cout << numFreeBlocks << "numFreeBlocks" << endl;
-            
-            
+            //cout << numBlocksNeeded << "numBlocksNeeded" << endl;
+            //cout << numFreeBlocks << "numFreeBlocks" << endl;        
             // case 1: numFreeBlocks < numBlocksNeeded
             if (numFreeBlocks < numBlocksNeeded) {
                 // the block is used now
@@ -252,8 +246,6 @@ void allocateBlocks(fileOrDir *file, int blockSize) {
     
     mergeLDisk();
 }
-
-
 
 int main(int argc, char** argv) {
     //terminal path vector for interactive env
@@ -371,7 +363,6 @@ int main(int argc, char** argv) {
     }
     // printDirectory(root);
     
-    
     string ID;
     int fileSize;
     string d1;
@@ -394,6 +385,7 @@ int main(int argc, char** argv) {
             addChild(parent, child);
             // allocate blocks for the file
             allocateBlocks(file,blockSize);
+            printFileInfo(file);
         }
         files.close();
     }
@@ -506,7 +498,6 @@ int main(int argc, char** argv) {
                 cout << "Command not found!" << endl;
             }
         }
-    }
-    
+    }    
     return 0;
 }
