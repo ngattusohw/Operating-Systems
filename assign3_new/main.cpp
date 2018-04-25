@@ -64,8 +64,9 @@ int calculateBytesUnused(int fileSize, int blockSize) {
     if (fileSize == 0) {
         return 0;
     }
-    int blocks = ((float)fileSize / (float)blockSize);
+    int blocks = ceil(((float)fileSize / (float)blockSize));
     if (blocks == fileSize / blockSize) {
+        cout << "They are equal! " << endl;
         return 0;
     }
     return blockSize - (fileSize - ((blocks - 1) * blockSize));
@@ -89,6 +90,67 @@ void printDirectory(treeNode *root) {
         }
     }
 }
+
+void printFileInfo(fileOrDir *file) {
+    cout << "File Name: " << file->name << " File Size: " << file->fileSize << " Timestamp: " << file->timeStamp << endl;
+    list<int>::iterator it;
+    cout << "Block addresses: ";
+    for (it = file->blockAddresses.begin(); it != file->blockAddresses.end(); it++) {
+        cout << *it << " ";
+    }
+    cout << endl;
+}
+
+void printAllFiles(treeNode *root) {
+    if (root != NULL) {
+        treeNode *temp = root;
+        list<treeNode *> queue;
+        queue.push_back(root);
+        while(!queue.empty()){
+            // print the current directory name
+            temp = queue.front();
+            if(temp!=NULL){
+                if(!(temp->data->isDirectory)){
+                    printFileInfo(temp->data);
+                }
+            }
+            //cout << temp->data->name << endl;
+            queue.pop_front();
+            for (int i = 0; i < temp->children.size(); ++i) {
+                queue.push_back(temp -> children[i]);
+            }
+        }
+    }
+}
+
+int countFragmentation(treeNode *root, int blockSize) {
+    int frag = 0;
+    if (root != NULL) {
+        treeNode *temp = root;
+        list<treeNode *> queue;
+        queue.push_back(root);
+        while(!queue.empty()){
+            // print the current directory name
+            temp = queue.front();
+            if(temp!=NULL){
+                if(!(temp->data->isDirectory)){
+                    //cout << "Calculating the frag! " << temp->data->fileSize << " " << blockSize <<endl;
+                    frag += calculateBytesUnused(temp->data->fileSize, blockSize);
+                    //cout << "PRINTING THE FRAG " << frag << endl;
+                }
+            }
+            //cout << temp->data->name << endl;
+            queue.pop_front();
+            for (int i = 0; i < temp->children.size(); ++i) {
+                queue.push_back(temp -> children[i]);
+            }
+        }
+    }
+
+    return frag;
+}
+
+
 
 //prints out sub-directories under a given node
 void printDirChildren(treeNode *node) {
@@ -161,16 +223,6 @@ void mergeLDisk() {
             advance (current,1);
         }
     }
-}
-
-void printFileInfo(fileOrDir *file) {
-    cout << "File Name: " << file->name << " File Size: " << file->fileSize << " Timestamp: " << file->timeStamp << endl;
-    list<int>::iterator it;
-    cout << "Block addresses: ";
-    for (it = file->blockAddresses.begin(); it != file->blockAddresses.end(); it++) {
-        cout << *it << " ";
-    }
-    cout << endl;
 }
 
 void allocateBlocks(fileOrDir *file, int blockSize) {
@@ -389,7 +441,6 @@ int main(int argc, char** argv) {
             addChild(parent, child);
             // allocate blocks for the file
             allocateBlocks(file,blockSize);
-            printFileInfo(file);
         }
         files.close();
     }
@@ -431,7 +482,7 @@ int main(int argc, char** argv) {
                       TERMINAL_PATH_VECTOR.push_back(cd_temp);
                     }else{
                         cout << cd_temp << " Is not a valid directory!" << endl;
-                        cout << "Below are you list of valid directories :: " << endl;
+                        cout << "Below are your list of valid directories :: " << endl;
                         for(int x = 0 ; x<DIR_LIST_VECTOR.size(); x++){
                             cout << DIR_LIST_VECTOR[x] << endl;
                         }
@@ -542,10 +593,11 @@ int main(int argc, char** argv) {
             }else if(input.compare("prfiles") == 0){
                 //TODO
                 // print out all file information
-                cout << "prfiles thing!" << endl;
+                printAllFiles(root);
             }else if(input.compare("prdisk") == 0){
                 //TODO
-                cout << "prdisk thing!" << endl;
+                
+                cout << "Block size :: " << blockSize <<" , Fragmentation :: " << countFragmentation(root, blockSize) << endl;
             }else{
                 cout << "Command not found!" << endl;
             }
