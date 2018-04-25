@@ -10,6 +10,7 @@
 #include <string>
 #include <sstream>
 #include <algorithm>
+#include <typeinfo>
 
 #include <sys/wait.h>
 #include <sys/types.h>
@@ -63,7 +64,7 @@ int calculateBytesUnused(int fileSize, int blockSize) {
     if (fileSize == 0) {
         return 0;
     }
-    int blocks = ceil((float)fileSize / (float)blockSize);
+    int blocks = ((float)fileSize / (float)blockSize);
     if (blocks == fileSize / blockSize) {
         return 0;
     }
@@ -111,14 +112,14 @@ treeNode* findNode(treeNode *root, string name) {
             temp = queue.front();
             if (temp->data->name == name) {
                 // found it
-                break;
+                return temp;
             }
             queue.pop_front();
             for (int i = 0; i < (temp->children).size(); i++) {
                 queue.push_back(temp -> children[i]);
             }
         }
-        return temp;
+        return NULL;
     }
     return NULL;
 }
@@ -177,19 +178,22 @@ void printFileInfo(fileOrDir *file) {
 }
 
 void allocateBlocks(fileOrDir *file, int blockSize) {
-    //cout << file->fileSize << "fileSize" << endl;
-    int diff = file->fileSize - file->allocatedBytes;
+    cout << file->fileSize << ":: fileSize ... allocatedBytes ::" << file->allocatedBytes << endl;
+    int diff = (file->fileSize) - (file->allocatedBytes);
     bool success = false;
     
-    int numBlocksNeeded = ceil((diff * 1.0) / blockSize);
+
+    cout << "This is testing mother fucker (diff, blocksize) " << diff << ", " << blockSize << endl; 
+    int numBlocksNeeded = ceil((float)diff / (float)blockSize);
     if (numBlocksNeeded == 0) {
         return;
     }
     
-    //cout << numBlocksNeeded << "numBlocksNeeded" << endl;
+    cout << numBlocksNeeded << "numBlocksNeeded" << endl;
     list<diskBlock*>::iterator blockIterator;
     blockIterator = diskBlocks.begin();
     while (numBlocksNeeded > 0 && blockIterator != diskBlocks.end()) {
+        cout << "In the while loop, end ";
         // found a free disk block
         if((*blockIterator)->isFree == true) {
             int numFreeBlocks = (*blockIterator)->end - (*blockIterator)->start + 1;
@@ -206,6 +210,7 @@ void allocateBlocks(fileOrDir *file, int blockSize) {
                     file->blockAddresses.push_back(i*blockSize);
                 }
                 // back to check condition
+                cout << "Testing append " << endl;
             }
             // case 2: numFreeBlocks >= numBlocksNeeded
             else  {
@@ -226,6 +231,7 @@ void allocateBlocks(fileOrDir *file, int blockSize) {
                 file->allocatedBytes += numFreeBlocks * blockSize;
                 numBlocksNeeded = 0;
                 success = true;
+                cout << "Testing append block " << endl;
                 break;
             }
         }
@@ -305,7 +311,7 @@ int main(int argc, char** argv) {
     diskBlock *dBlock = new diskBlock;
     
     dBlock->start = 0;
-    dBlock->end = ceil(diskSize * 1.0 / blockSize) - 1;
+    dBlock->end = ceil((float)diskSize / (float)blockSize) - 1;
     dBlock->isFree = true;
     diskBlocks.push_front(dBlock);
     
@@ -437,6 +443,7 @@ int main(int argc, char** argv) {
                         cout << "mkdir: " << input2 << " Permission denied" << endl; 
                     }else{
                         treeNode* the_parent = findNode(root, TERMINAL_PATH);
+                        cout << "This is the found parent " << the_parent->data->name << endl;
                         fileOrDir *dir = new fileOrDir;
                         dir->name = TERMINAL_PATH + "/" +input2;
                         dir->fileSize = 0;
@@ -450,8 +457,6 @@ int main(int argc, char** argv) {
                         addChild(the_parent, child);
                         DIR_LIST_VECTOR.push_back(TERMINAL_PATH + "/" + input2);
                     }
-
-                    
                 }else if(input.compare("create") == 0){
                     fileOrDir *newfile = new fileOrDir;
                     newfile->name = currentDir->data->name + "/" + input2;
@@ -482,19 +487,29 @@ int main(int argc, char** argv) {
             }else{
                 //do the three space stuff here
                 input3 = input2.substr(second_space+1);
-                input2 = input2.substr(first_space+1,second_space);
+                input2 = input2.substr(0,second_space);
+                cout << "This is input 2 ::" << input2 << "::"<< endl;
                 if(input.compare("append") == 0){
-                    treeNode* found = findNode(root, input2);
-                    if (found == NULL) {
-                        cout << "Error: not find the file/directory" << endl;
-                        return -1;
-                    }
-                    if (found->data->isDirectory) {
-                        cout << "Error: please give a file name" << endl;
-                    }
-                    else {
-                        found->data->fileSize += stoi(input3);
-                        allocateBlocks(found->data,blockSize);
+                    if(typeid(input2) == typeid(string)){
+                        treeNode* found = findNode(root, input2);
+                        if (found == NULL) {
+                            cout << "Error: not find the file/directory" << endl;
+                            //return -1;
+                        }else if (found->data->isDirectory) {
+                            cout << "Error: please give a file name" << endl;
+                        }
+                        else {
+                            cout << "This is the found treeNode" << found->data->name << endl;
+                            try{
+                                found->data->fileSize += stoi(input3);
+                                cout << " Printing out the input3 " << input3 << endl;
+                                allocateBlocks(found->data,blockSize);
+                            }catch(...){
+                                cout << "Please enter the correct parameter types! Usage:: append <filename:string> <bytes:int>" << endl;
+                            }
+                        }
+                    }else{
+                        cout << "Incorrect argument types. Usage: append <filename:string> <bytes:int>" << endl;
                     }
                 }else if(input.compare("remove") == 0){
                     
