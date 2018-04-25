@@ -20,7 +20,7 @@ using namespace std;
 
 
 class fileOrDir {
-  public:
+public:
     string name;
     string timeStamp;
     bool isDirectory; // either a regular file or a directory
@@ -31,7 +31,7 @@ class fileOrDir {
 };
 
 class diskBlock {
-  public:
+public:
     int start;
     int end;
     bool isFree;
@@ -39,14 +39,14 @@ class diskBlock {
 
 
 class treeNode {
-  public:
+public:
     fileOrDir *data;
     vector<treeNode*> children;
     treeNode *parent;
 };
 
 // global variables
-list<diskBlock*> diskBlocks; //LDISK
+list<diskBlock*> diskBlocks;
 treeNode *root = new treeNode;
 treeNode *currentDir = new treeNode;
 
@@ -146,7 +146,7 @@ int countFragmentation(treeNode *root, int blockSize) {
             }
         }
     }
-
+    
     return frag;
 }
 
@@ -192,19 +192,37 @@ void addChild(treeNode* parent, treeNode* child) {
     child->parent = parent;
 }
 
+int deleteChild(treeNode* parent, treeNode* child) {
+    int test = 0;
+    // to find the child
+    for (int i = 0;i<parent->children.size();i++) {
+        if (parent->children[i]->data->name == child->data->name) {
+            // delete *next;
+            parent->children.erase(parent->children.begin()+i);
+            test = 1;
+        }
+    }
+    child->parent = NULL;
+    delete child->data;
+    child->data = NULL;
+    delete child;
+    return test;
+}
+
+
 // Get timestamp
 string getTimeStamp() {
     chrono::system_clock::time_point today  = chrono::system_clock::now();
     std::time_t tt = chrono::system_clock::to_time_t (today);
     string time_stamp = ctime(&tt);
     return time_stamp.substr(4,12);
- }
+}
 
 // Used to merge blocks in the Ldisk
 void mergeLDisk() {
     list<diskBlock*>::iterator current, next;
     current = diskBlocks.begin();
-
+    
     while (current != diskBlocks.end()) {
         next = current;
         advance (next,1);
@@ -229,17 +247,17 @@ void allocateBlocks(fileOrDir *file, int blockSize) {
     cout << file->fileSize << ":: fileSize ... allocatedBytes ::" << file->allocatedBytes << endl;
     int diff = (file->fileSize) - (file->allocatedBytes);
     bool success = false;
-
+    
     cout << "This is testing mother fucker (diff, blocksize) " << diff << ", " << blockSize << endl;
     int numBlocksNeeded = ceil((float)diff / (float)blockSize);
     if (numBlocksNeeded == 0) {
         return;
     }
-
+    
     cout << numBlocksNeeded << "numBlocksNeeded" << endl;
-
+    
     //cout << numBlocksNeeded << "numBlocksNeeded" << endl;
-
+    
     list<diskBlock*>::iterator blockIterator;
     blockIterator = diskBlocks.begin();
     while (numBlocksNeeded > 0 && blockIterator != diskBlocks.end()) {
@@ -290,25 +308,69 @@ void allocateBlocks(fileOrDir *file, int blockSize) {
             blockIterator++;
         }
     }
-
+    
     // unable to find free blocks
     if (success == false) {
         // disk is full
-        cout << "Error: disk is full!" << endl;
+        cout << "Error: fail to allocate file blocks" << endl;
         file->fileSize = file->allocatedBytes;
         mergeLDisk();
         return;
     }
-
+    
     mergeLDisk();
 }
+
+
+
+
+
+void deallocateBlocks(fileOrDir *file, int blockSize) {
+    // delete a number of bytes from the file
+    
+    int diff = file->allocatedBytes - file->fileSize;
+    int numBlocksRemove = diff/blockSize;
+    bool success = false;
+    while (numBlocksRemove>0) {
+        list<int>::iterator addressIterator;
+        addressIterator = file->blockAddresses.end();
+        // the last node of the linked List
+        addressIterator--;
+        // calculate the blockID to remove
+        int blockID = *addressIterator / blockSize;
+        list<diskBlock*>::iterator blockIterator;
+        blockIterator = diskBlocks.begin();
+        while (blockIterator != diskBlocks.end()) {
+            
+        }
+        numBlocksRemove--;
+        // update the file info
+        file->allocatedBytes -= blockSize;
+        // remove the block
+        // file->blockAddresses.erase();
+    }
+    mergeLDisk();
+}
+
+
+
+void destroyTree(treeNode* root) {
+    // TODO
+    
+}
+
+
+
+
+
+
 
 int main(int argc, char** argv) {
     //terminal path vector for interactive env
     vector<string> TERMINAL_PATH_VECTOR;
     TERMINAL_PATH_VECTOR.push_back("./");
     string TERMINAL_PATH = "./";
-
+    
     vector<string> DIR_LIST_VECTOR;
     int diskSize;
     int blockSize;
@@ -321,7 +383,7 @@ int main(int argc, char** argv) {
         return -1;
     }
     for (int i = 1; i < argc - 1; i = i + 2) {
-
+        
         if  (!strcmp(argv[i], "-s")) {
             if (argv[i+1]) {
                 diskSize = atoi(argv[i+1]);
@@ -330,7 +392,7 @@ int main(int argc, char** argv) {
                 cout << "ERROR: Invalid value for disk size" << endl;
             }
         }
-
+        
         if (!strcmp(argv[i], "-b")) {
             if (argv[i+1]) {
                 blockSize = atoi(argv[i+1]);
@@ -339,14 +401,14 @@ int main(int argc, char** argv) {
                 cout << "ERROR: Invalid value for block size" << endl;
             }
         }
-
+        
         else if (!strcmp(argv[i], "-f")) {
             // -f <file_list.txt>
             if (argv[i+1]) {
                 fl = argv[i+1];
             }
         }
-
+        
         else if (!strcmp(argv[i], "-d")) {
             // -d <dir_list.txt>
             if (argv[i+1]) {
@@ -358,12 +420,12 @@ int main(int argc, char** argv) {
     //cout << dl << " " << fl << " " << diskSize << " " << blockSize << " " << "Ayy" << endl;
     // Constructor called
     diskBlock *dBlock = new diskBlock;
-
+    
     dBlock->start = 0;
     dBlock->end = ceil((float)diskSize / (float)blockSize) - 1;
     dBlock->isFree = true;
     diskBlocks.push_front(dBlock);
-
+    
     // Initialize directories
     ifstream directories (dl);
     ifstream files (fl);
@@ -371,7 +433,7 @@ int main(int argc, char** argv) {
     currentDir = root;
     string line;
     int count = 0;
-
+    
     if (directories) {
         while (getline(directories, line)) {
             if (line.size() != 0) {
@@ -417,7 +479,7 @@ int main(int argc, char** argv) {
         return -1;
     }
     // printDirectory(root);
-
+    
     string ID;
     int fileSize;
     string d1;
@@ -434,7 +496,7 @@ int main(int argc, char** argv) {
             file->timeStamp =  d1 + " " + d2 + " " + d3;
             file->allocatedBytes = 0;
             cout << file->timeStamp << endl;
-
+            
             treeNode* parent = findNode(root, dir.substr(0, dir.find_last_of("/")));
             treeNode* child = new treeNode;
             child->data = file;
@@ -450,19 +512,19 @@ int main(int argc, char** argv) {
     }
     cout << "print directory" << endl;
     printDirectory(root);
-
-
-
+    
+    
+    
     char cwd[1024];
     for(;;){
         string input = "";
         string input2 = "";
         string input3 = "";
-
+        
         //getcwd(cwd, sizeof(cwd));
         cout << "Enter a command to manipulate the file system: " << TERMINAL_PATH << "$";
         getline(cin, input);
-
+        
         size_t first_space = input.find(" ");
         if(first_space!=string::npos){
             //do all the multiline commands here
@@ -477,9 +539,9 @@ int main(int argc, char** argv) {
                     //     cout << "Not a valid directory!" << endl;
                     // }
                     if (find(DIR_LIST_VECTOR.begin(), DIR_LIST_VECTOR.end(), cd_temp) != DIR_LIST_VECTOR.end()){
-                      // Element in vector.
-                      TERMINAL_PATH = cd_temp;
-                      TERMINAL_PATH_VECTOR.push_back(cd_temp);
+                        // Element in vector.
+                        TERMINAL_PATH = cd_temp;
+                        TERMINAL_PATH_VECTOR.push_back(cd_temp);
                     }else{
                         cout << cd_temp << " Is not a valid directory!" << endl;
                         cout << "Below are your list of valid directories :: " << endl;
@@ -501,7 +563,7 @@ int main(int argc, char** argv) {
                         dir->isDirectory = true;
                         dir->timeStamp = "";
                         dir->allocatedBytes = 0;
-
+                        
                         treeNode *child = new treeNode;
                         child->data = dir;
                         child->parent = NULL;
@@ -520,24 +582,42 @@ int main(int argc, char** argv) {
                     child->data = newfile;
                     child->parent = NULL;
                     addChild(the_parent, child);
-                }else if(input.compare("delete") == 0){
+                }
+                else if(input.compare("delete") == 0){
+                    // TODO
                     //delete the file or directory
                     treeNode* found = findNode(root, input2);
                     if (found == NULL) {
                         cout << "Error: not find the file/directory" << endl;
-                        return -1;
                     }
                     treeNode *parent = found->parent;
-                    // if (parent->data->isDirectory) {
-                    //   //todo
-                    // }
-                    // else {
-                    //   //todo
-                    // }
-                }else{
+                    if (found->data->isDirectory) {
+                        // the one found is a directory
+                        if (found->children.size()!= 0) {
+                            cout << "Error: directory is not empty" << endl;
+                        }
+                        // delete the directory
+                        else {
+                            deleteChild(parent, found);
+                        }
+                    }
+                    // to delete a file
+                    else {
+                        // deallocate file blocks
+                        found->data->fileSize = 0;
+                        deallocateBlocks(found->data,blockSize);
+                        // erase the file
+                        deleteChild(parent, found);
+                        // update the timestamp of the parent node
+                        parent->data->timeStamp = getTimeStamp();
+                    }
+                }
+                
+                else{
                     cout << "Command not found!" << endl;
                 }
-            }else{
+            }
+            else{
                 //do the three space stuff here
                 input3 = input2.substr(second_space+1);
                 input2 = input2.substr(0,second_space);
@@ -547,16 +627,22 @@ int main(int argc, char** argv) {
                         treeNode* found = findNode(root, input2);
                         if (found == NULL) {
                             cout << "Error: not find the file/directory" << endl;
-                            //return -1;
                         }else if (found->data->isDirectory) {
                             cout << "Error: please give a file name" << endl;
                         }
                         else {
                             cout << "This is the found treeNode" << found->data->name << endl;
                             try{
-                                found->data->fileSize += stoi(input3);
-                                cout << " Printing out the input3 " << input3 << endl;
-                                allocateBlocks(found->data,blockSize);
+                                int bytesToAdd = stoi(input3);
+                                if (found->data->fileSize + stoi(input3) > diskSize) {
+                                    cout << "Error: you cannot add " << bytesToAdd <<
+                                    " bytes " << "to file" << found->data->name << endl;
+                                }
+                                else {
+                                    found->data->fileSize += stoi(input3);
+                                    cout << " Printing out the input3 " << input3 << endl;
+                                    allocateBlocks(found->data,blockSize);
+                                }
                             }catch(...){
                                 cout << "Please enter the correct parameter types! Usage:: append <filename:string> <bytes:int>" << endl;
                             }
@@ -566,9 +652,33 @@ int main(int argc, char** argv) {
                     }
                 }else if(input.compare("remove") == 0){
                     //TODO
-                }else{
-                    cout << second_space << endl;
-                    cout << "Command not AHHH found!" << endl;
+                    treeNode* found = findNode(root, input2);
+                    if (found == NULL) {
+                        cout << "Error: not find the file/directory" << endl;
+                    }
+                    else if (found->data->isDirectory) {
+                        cout << "Error: please give a file name" << endl;
+                    }
+                    else {
+                        cout << "This is the found treeNode" << found->data->name << endl;
+                        try{
+                            int bytesToRemove = stoi(input3);
+                            cout << " Printing out the input3 " << input3 << endl;
+                            if (found->data->fileSize < bytesToRemove) {
+                                cout << "Error: you cannot remove " << bytesToRemove <<
+                                " bytes " << "from file" << found->data->name << endl;
+                            }
+                            else {
+                                found->data->fileSize -= bytesToRemove;
+                                deallocateBlocks(found->data,blockSize);
+                            }
+                        }catch(...){
+                            cout << "Please enter the correct parameter types! Usage:: append <filename:string> <bytes:int>" << endl;
+                        }
+                    }
+                }
+                else{
+                    cout << "Incorrect argument types. Usage: append <filename:string> <bytes:int>" << endl;
                 }
             }
         }else{
@@ -586,26 +696,23 @@ int main(int argc, char** argv) {
                 }
                 // cout << "ls thing!" << endl;
             }else if(input.compare("exit") == 0){
-                return 0; //TODO:: Destroy everything
+                // deallocate data structures and exit program
+                string response;
+                cout << "Are you sure you want to exit (y/n): " << endl;
+                cin >> response;
+                if (response.compare("y") == 0) {
+                    // Destroy everything
+                    destroyTree(root);
+                    cout << "Exiting...." << endl;
+                    return 0;
+                }
             }else if(input.compare("dir") == 0 ){
                 printDirectory(root);
                 // cout << "dir thing!" << endl;
             }else if(input.compare("prfiles") == 0){
-                //TODO
                 // print out all file information
                 printAllFiles(root);
             }else if(input.compare("prdisk") == 0){
-                //TODO
-                for (list<diskBlock*>::iterator it = diskBlocks.begin(); it != diskBlocks.end(); ++it){
-                    if((*it)->isFree){
-                        cout << "Free: " << (*it)->start << " - " << (*it)->end << endl;
-                    }else{
-                        cout << "In use: " << (*it)->start << " - " << (*it)->end << endl;
-                    }
-                }
-
-
-
                 cout << "Block size :: " << blockSize <<" , Fragmentation :: " << countFragmentation(root, blockSize) << endl;
             }else{
                 cout << "Command not found!" << endl;
