@@ -664,27 +664,26 @@ int main(int argc, char** argv) {
                     treeNode* found = findNode(root, input2);
                     if (found == NULL) {
                         cout << "Error: not find the file/directory" << endl;
-                    }
-                    treeNode *parent = found->parent;
-                    if (found->data->isDirectory) {
-                        // the one found is a directory
-                        if (found->children.size()!= 0) {
-                            cout << "Error: directory is not empty" << endl;
-                        }
-                        // delete the directory
-                        else {
+                    }else{
+                        treeNode *parent = found->parent;
+                        if (found->data->isDirectory) {
+                            // the one found is a directory
+                            if (found->children.size()!= 0) {
+                                cout << "Error: directory is not empty" << endl;
+                            }
+                            // delete the directory
+                            else {
+                                deleteChild(parent, found);
+                            }
+                        }else { // to delete a file
+                            // deallocate file blocks
+                            found->data->fileSize = 0;
+                            deallocateBlocks(found->data,blockSize);
+                            // erase the file
                             deleteChild(parent, found);
+                            // update the timestamp of the parent node
+                            parent->data->timeStamp = getTimeStamp();
                         }
-                    }
-                    // to delete a file
-                    else {
-                        // deallocate file blocks
-                        found->data->fileSize = 0;
-                        deallocateBlocks(found->data,blockSize);
-                        // erase the file
-                        deleteChild(parent, found);
-                        // update the timestamp of the parent node
-                        parent->data->timeStamp = getTimeStamp();
                     }
                 }else{
                     cout << "Command not found!" << endl;
