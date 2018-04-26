@@ -296,7 +296,7 @@ void allocateBlocks(fileOrDir *file, int blockSize) {
                 diskBlocks.insert(blockIterator,tempBlock);
                 // split the block
                 // edge case: if node after is free and contains one block
-                if ((*blockIterator)->start == (*blockIterator)->end && 
+                if ((*blockIterator)->start == (*blockIterator)->end &&
                     (*blockIterator)->isFree == true) {
                     list<diskBlock*>::iterator tempIterator = blockIterator;
                     advance(blockIterator,1);
@@ -346,13 +346,13 @@ void deallocateBlocks(fileOrDir *file, int blockSize) {
         addressIterator--;
         // calculate the blockID to remove
         int blockID = *addressIterator / blockSize;
-        cout << "This is the blockId " << blockID << endl; 
+        cout << "This is the blockId " << blockID << endl;
         list<diskBlock*>::iterator blockIterator;
         blockIterator = diskBlocks.begin();
         while (blockIterator != diskBlocks.end()) {
             if((*blockIterator)->start <= blockID && (*blockIterator)->end >= blockID){
                 //split
-                cout << "BLOCK ID " << blockID << endl; 
+                cout << "BLOCK ID " << blockID << endl;
                 diskBlock *newBlock = new diskBlock;
                 newBlock->start = blockID;
                 newBlock->end = blockID;
@@ -433,7 +433,7 @@ void destroyTree(treeNode* root) {
           delete temp; //freed memory
           temp = t;
         }
-        root = NULL; 
+        root = NULL;
     }
 }
 
@@ -778,7 +778,7 @@ int main(int argc, char** argv) {
                     destroyTree(root);
                     root = NULL;
                     cout << "Exiting...." << endl;
-                    //return 0;
+                    return 0;
                 }
             }else if(input.compare("dir") == 0 ){
                 printDirectory(root);
