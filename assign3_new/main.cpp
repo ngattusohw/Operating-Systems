@@ -761,9 +761,11 @@ int main(int argc, char** argv) {
                 }
             }else if(input.compare("ls") == 0){
                 treeNode* temp_currentNode = findNode(root, TERMINAL_PATH);
-                for (int i = 0; i < (temp_currentNode->children).size(); i++) {
-                    cout << temp_currentNode->children[i]->data->name << " is a " <<
-                    ((temp_currentNode -> children[i] -> data -> isDirectory) ? "directory" : "file") << endl;
+                if(temp_currentNode != NULL){
+                    for (int i = 0; i < (temp_currentNode->children).size(); i++) {
+                        cout << temp_currentNode->children[i]->data->name << " is a " <<
+                        ((temp_currentNode -> children[i] -> data -> isDirectory) ? "directory" : "file") << endl;
+                    }
                 }
                 // cout << "ls thing!" << endl;
             }else if(input.compare("exit") == 0){
