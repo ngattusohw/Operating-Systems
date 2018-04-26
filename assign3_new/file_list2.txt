@@ -1,0 +1,7 @@
+  2627261      0 -rw-r--r--   1 root     root            0 Apr 26 03:05 ./file_list.txt
+  2627258      4 -rw-r--r--   1 root     root         3367 Apr 26 03:00 ./me.c
+  2627262      4 -rw-r--r--   1 root     root           24 Apr 26 03:05 ./Directory1/mothafucka.txt
+  2627250     64 -rw-r--r--   1 root     root        65536 Apr 26 03:02 ./.you.c.swp
+  2627260      4 -rw-r--r--   1 root     root           58 Apr 26 03:05 ./dir_list.txt
+  2627256      4 -rw-r--r--   1 root     root         1089 Apr 26 03:00 ./yourmom.java
+  2627252      4 -rw-r--r--   1 root     root         3037 Apr 26 03:04 ./thisisatest.c

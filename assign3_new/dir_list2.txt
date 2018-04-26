@@ -1,0 +1,4 @@
+./
+./Directory1
+./Directory1/InsideDirectory
+./Directory2
