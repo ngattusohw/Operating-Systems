@@ -40,12 +40,12 @@ public:
 
 class treeNode {
 public:
-    fileOrDir *data;
+    fileOrDir *data; // either a file or a directory
     vector<treeNode*> children;
     treeNode *parent;
 };
 
-// global variables
+// all global variables
 list<diskBlock*> diskBlocks;
 treeNode *root = new treeNode;
 treeNode *currentDir = new treeNode;
@@ -127,7 +127,7 @@ void printAllFiles(treeNode *root) {
     }
 }
 
-
+// Count the number of unused bytes for whole file system
 int countFragmentation(treeNode *root, int blockSize) {
     int frag = 0;
     if (root != NULL) {
@@ -168,7 +168,7 @@ void printDirChildren(treeNode *node) {
     cout << endl;
 }
 
-// To find one specific node in the tree through BST
+// To find one specific node in the tree through BFS
 treeNode* findNode(treeNode *root, string name) {
     if (root != NULL) {
         treeNode *temp;
@@ -191,7 +191,7 @@ treeNode* findNode(treeNode *root, string name) {
     return NULL;
 }
 
-// Adds child node to its parent node
+// Adds child node to its parent node (append to the end of the list)
 void addChild(treeNode* parent, treeNode* child) {
     parent->children.push_back(child);
     child->parent = parent;
@@ -212,6 +212,7 @@ int deleteChild(treeNode* parent, treeNode* child) {
     delete child->data;
     child->data = NULL;
     delete child;
+    // test = 1 means successfully delete the child from its parent and test = 0 means the opposite
     return test;
 }
 
@@ -243,6 +244,7 @@ void mergeLDisk() {
             delete *next;
             diskBlocks.erase(next);
         }
+        // move to next node
         else {
             advance (current,1);
         }
