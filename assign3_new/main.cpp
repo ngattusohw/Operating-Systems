@@ -339,12 +339,16 @@ void deallocateBlocks(fileOrDir *file, int blockSize) {
     int numBlocksRemove = diff/blockSize;
     int totalBlocksRemove = numBlocksRemove;
     bool success = false;
+
+    cout << "Testing deallocating blocks , inital amount :: " << file->blockAddresses.size() << endl;
     while (numBlocksRemove>0) {
+        cout << "Amount of blocks :: " << file->blockAddresses.size() << endl;
         list<int>::iterator addressIterator;
         addressIterator = file->blockAddresses.end();
         // the last node of the linked List
         addressIterator--;
         // calculate the blockID to remove
+        cout << "This is the addressIterator " << *addressIterator << endl;
         int blockID = *addressIterator / blockSize;
         cout << "This is the blockId " << blockID << endl;
         list<diskBlock*>::iterator blockIterator;
@@ -363,18 +367,22 @@ void deallocateBlocks(fileOrDir *file, int blockSize) {
                     advance(nextNode,1);
 
                     if(nextNode == diskBlocks.end()){
+                        cout << "Only removing the last block, where nextNode = diskBlocks end" << endl;
                         diskBlocks.push_back(newBlock);
                     }else{
                         //not adding at the back, need to figure out where to add
+                        cout << "Only removing the last block , and idk BLOCK ID :: " << blockID << endl;
                         (*blockIterator)->end = blockID-1;
                         advance(blockIterator,1);
                         diskBlocks.insert(blockIterator, newBlock);
                     }
                 }else if(blockID == (*blockIterator)->start){
+                    cout << "Removing the front " << endl;
                     //removing the front
                     (*blockIterator)->start = blockID+1;
                     diskBlocks.insert(blockIterator, newBlock);
                 }else{
+                    cout << "Removing somewhere in the middle " << endl;
                     //not the front, somewhere in the middle
                     diskBlock *whateverYouWantIDontCare = new diskBlock;
                     whateverYouWantIDontCare->start = blockID+1;
@@ -387,10 +395,12 @@ void deallocateBlocks(fileOrDir *file, int blockSize) {
                     advance(nextNode,1);
 
                     if(nextNode == diskBlocks.end()){
+                        cout << "Removing somewhere in the middle where nextNode = diskBlocks end" << endl;
                         diskBlocks.push_back(newBlock);
                         diskBlocks.push_back(whateverYouWantIDontCare);
                     }else{
                         //not adding at the back, need to figure out where to add
+                        cout << "Removing somewhere in the middle where nextNode != diskBlocks end BLOCK ID :: " << blockID << endl;
                         advance(blockIterator,1);
                         diskBlocks.insert(blockIterator, whateverYouWantIDontCare);
                         diskBlocks.insert(prev(blockIterator), newBlock);
@@ -405,13 +415,17 @@ void deallocateBlocks(fileOrDir *file, int blockSize) {
         file->allocatedBytes -= blockSize;
         // remove the block
         // file->blockAddresses.erase();
-    }
-
-    // removing blocks from Lfile
-    for (int i = 0; i < totalBlocksRemove; i++) {
         file->blockAddresses.pop_back();
+
     }
 
+    list<diskBlock*>::iterator edgeCaseChecker;
+    edgeCaseChecker = diskBlocks.begin();
+
+    if((*edgeCaseChecker)->end < 0){
+        diskBlocks.pop_front();
+    }
+    
     mergeLDisk();
 }
 
@@ -633,58 +647,76 @@ int main(int argc, char** argv) {
                     if(input2.substr(0,1).compare("/") == 0){
                         cout << "mkdir: " << input2 << " Permission denied" << endl;
                     }else{
-                        treeNode* the_parent = findNode(root, TERMINAL_PATH);
-                        cout << "This is the found parent " << the_parent->data->name << endl;
+
                         fileOrDir *dir = new fileOrDir;
                         dir->name = TERMINAL_PATH + "/" +input2;
                         dir->fileSize = 0;
                         dir->isDirectory = true;
                         dir->timeStamp = getTimeStamp();
                         dir->allocatedBytes = 0;
+                        if(root != NULL){
+                            treeNode* the_parent = findNode(root, TERMINAL_PATH);
+                            cout << "This is the found parent " << the_parent->data->name << endl;
+                            treeNode *child = new treeNode;
+                            child->data = dir;
+                            child->parent = NULL;
+                            addChild(the_parent, child);
+                            DIR_LIST_VECTOR.push_back(TERMINAL_PATH + "/" + input2);
+                        }else{
+                            root = new treeNode;
+                            root->data = dir;
+                            root->parent = NULL;
 
-                        treeNode *child = new treeNode;
-                        child->data = dir;
-                        child->parent = NULL;
-                        addChild(the_parent, child);
-                        DIR_LIST_VECTOR.push_back(TERMINAL_PATH + "/" + input2);
+                        }
                     }
                 }else if(input.compare("create") == 0){
-                    treeNode* the_parent = findNode(root, TERMINAL_PATH);
                     fileOrDir *newfile = new fileOrDir;
                     newfile->name = TERMINAL_PATH + "/" + input2;
                     newfile->fileSize = 0;
                     newfile->isDirectory = false;
                     newfile->timeStamp =  getTimeStamp();
                     newfile->allocatedBytes = 0;
-                    treeNode *child = new treeNode;
-                    child->data = newfile;
-                    child->parent = NULL;
-                    addChild(the_parent, child);
+
+                    if(root != NULL){
+                        treeNode* the_parent = findNode(root, TERMINAL_PATH);
+                        treeNode *child = new treeNode;
+                        child->data = newfile;
+                        child->parent = NULL;
+                        addChild(the_parent, child);
+                    }else{
+                        root = new treeNode;
+                        root->data = newfile;
+                        root->parent = NULL;
+                    }
                 }else if(input.compare("delete") == 0){
                     // TODO
                     //delete the file or directory
-                    treeNode* found = findNode(root, input2);
-                    if (found == NULL) {
-                        cout << "Error: not find the file/directory" << endl;
+                    if(input2.compare("./") == 0 ){
+                        cout << "You cannot delete the root directory!" << endl;
                     }else{
-                        treeNode *parent = found->parent;
-                        if (found->data->isDirectory) {
-                            // the one found is a directory
-                            if (found->children.size()!= 0) {
-                                cout << "Error: directory is not empty" << endl;
-                            }
-                            // delete the directory
-                            else {
+                        treeNode* found = findNode(root, input2);
+                        if (found == NULL) {
+                            cout << "Error: not find the file/directory" << endl;
+                        }else{
+                            treeNode *parent = found->parent;
+                            if (found->data->isDirectory) {
+                                // the one found is a directory
+                                if (found->children.size()!= 0) {
+                                    cout << "Error: directory is not empty" << endl;
+                                }
+                                // delete the directory
+                                else {
+                                    deleteChild(parent, found);
+                                }
+                            }else { // to delete a file
+                                // deallocate file blocks
+                                found->data->fileSize = 0;
+                                deallocateBlocks(found->data,blockSize);
+                                // erase the file
                                 deleteChild(parent, found);
+                                // update the timestamp of the parent node
+                                parent->data->timeStamp = getTimeStamp();
                             }
-                        }else { // to delete a file
-                            // deallocate file blocks
-                            found->data->fileSize = 0;
-                            deallocateBlocks(found->data,blockSize);
-                            // erase the file
-                            deleteChild(parent, found);
-                            // update the timestamp of the parent node
-                            parent->data->timeStamp = getTimeStamp();
                         }
                     }
                 }else{
