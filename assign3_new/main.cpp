@@ -295,6 +295,13 @@ void allocateBlocks(fileOrDir *file, int blockSize) {
                 // inserting new disk block before the disk block at the specified position
                 diskBlocks.insert(blockIterator,tempBlock);
                 // split the block
+                // edge case: if node after is free and contains one block
+                if ((*blockIterator)->start == (*blockIterator)->end && 
+                    (*blockIterator)->isFree == true) {
+                    list<diskBlock*>::iterator tempIterator = blockIterator;
+                    advance(blockIterator,1);
+                    tempIterator = diskBlocks.erase(tempIterator);
+                }
                 (*blockIterator)->start = tempBlock->end + 1;
                 file->allocatedBytes += numBlocksNeeded * blockSize;
                 numBlocksNeeded = 0;
@@ -404,7 +411,7 @@ void deallocateBlocks(fileOrDir *file, int blockSize) {
     for (int i = 0; i < totalBlocksRemove; i++) {
         file->blockAddresses.pop_back();
     }
-    
+
     mergeLDisk();
 }
 
