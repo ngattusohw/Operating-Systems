@@ -1,3 +1,8 @@
+// Nicholas Gattuso 
+// Kexian Wu
+// Louis Rozencwajg-Hays
+// I pledge my honor that I have abidied by the stevens honor system
+
 #include <cmath>
 #include <list>
 #include <vector>
@@ -16,7 +21,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 using namespace std;
-
 
 
 class fileOrDir {
@@ -50,7 +54,7 @@ list<diskBlock*> diskBlocks;
 treeNode *root = new treeNode;
 treeNode *currentDir = new treeNode;
 
-
+//A function that rebuilds the terminal path preview
 string rebuildTerminalPath(vector<string> vec){
     string returnVal = "";
     cout << "REBUILDING STRINGS " << endl;
@@ -141,10 +145,8 @@ int countFragmentation(treeNode *root, int blockSize) {
                 if(!(temp->data->isDirectory)){
                     //cout << "Calculating the frag! " << temp->data->fileSize << " " << blockSize <<endl;
                     frag += calculateBytesUnused(temp->data->fileSize, blockSize);
-                    //cout << "PRINTING THE FRAG " << frag << endl;
                 }
             }
-            //cout << temp->data->name << endl;
             queue.pop_front();
             for (int i = 0; i < temp->children.size(); ++i) {
                 queue.push_back(temp -> children[i]);
@@ -152,7 +154,7 @@ int countFragmentation(treeNode *root, int blockSize) {
         }
     }
 
-    return frag;
+    return frag; //return the fragmentation
 }
 
 
@@ -263,8 +265,6 @@ void allocateBlocks(fileOrDir *file, int blockSize) {
         return;
     }
 
-    //cout << numBlocksNeeded << "numBlocksNeeded" << endl;
-
     list<diskBlock*>::iterator blockIterator;
     blockIterator = diskBlocks.begin();
     while (numBlocksNeeded > 0 && blockIterator != diskBlocks.end()) {
@@ -285,7 +285,6 @@ void allocateBlocks(fileOrDir *file, int blockSize) {
                     file->blockAddresses.push_back(i*blockSize);
                 }
                 // back to check condition
-                //cout << "Testing append " << endl;
             }
             // case 2: numFreeBlocks >= numBlocksNeeded
             else  {
@@ -458,11 +457,6 @@ void destroyTree(treeNode* root) {
 }
 
 
-
-
-
-
-
 int main(int argc, char** argv) {
     //terminal path vector for interactive env
     vector<string> TERMINAL_PATH_VECTOR;
@@ -570,7 +564,6 @@ int main(int argc, char** argv) {
             }
             continue;
         }
-        // cout << "hello5" << endl;
         directories.close();
     }else {
         cout << "ERROR: Unable to open dir_list.txt" << endl;
@@ -584,6 +577,8 @@ int main(int argc, char** argv) {
     string d3;
     string dir;
     string garbage;
+
+    //initalize files
     if (files) {
         while (files >> ID >> garbage >> garbage >> garbage >> garbage >> garbage >> fileSize >> d1 >> d2 >> d3 >> dir) {
             fileOrDir *file = new fileOrDir;
@@ -610,7 +605,7 @@ int main(int argc, char** argv) {
     cout << "print directory" << endl;
     printDirectory(root);
 
-
+    //TERMINIAL CODE
 
     char cwd[1024];
     for(;;){
@@ -632,9 +627,6 @@ int main(int argc, char** argv) {
                 //do the two space stuff here
                 if(input.compare("cd") == 0){
                     string cd_temp = TERMINAL_PATH + input2;
-                    // if(chdir(input2.c_str())==-1){
-                    //     cout << "Not a valid directory!" << endl;
-                    // }
                     if (find(DIR_LIST_VECTOR.begin(), DIR_LIST_VECTOR.end(), cd_temp) != DIR_LIST_VECTOR.end()){
                         // Element in vector.
                         TERMINAL_PATH = cd_temp;
@@ -648,11 +640,9 @@ int main(int argc, char** argv) {
                         cout << "USAGE :: cd <VALID DIRECTORY>" << endl;
                     }
                 }else if(input.compare("mkdir") == 0){
-                    //TODO put in tree
                     if(input2.substr(0,1).compare("/") == 0){
                         cout << "mkdir: " << input2 << " Permission denied" << endl;
                     }else{
-
                         fileOrDir *dir = new fileOrDir;
                         dir->name = TERMINAL_PATH + "/" +input2;
                         dir->fileSize = 0;
@@ -694,7 +684,6 @@ int main(int argc, char** argv) {
                         root->parent = NULL;
                     }
                 }else if(input.compare("delete") == 0){
-                    // TODO
                     //delete the file or directory
                     if(input2.compare("./") == 0 ){
                         cout << "You cannot delete the root directory!" << endl;
@@ -762,7 +751,6 @@ int main(int argc, char** argv) {
                         cout << "Incorrect argument types. Usage: append <filename:string> <bytes:int>" << endl;
                     }
                 }else if(input.compare("remove") == 0){
-                    //TODO
                     treeNode* found = findNode(root, input2);
                     if (found == NULL) {
                         cout << "Error: not find the file/directory" << endl;
