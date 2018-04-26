@@ -57,9 +57,7 @@ treeNode *currentDir = new treeNode;
 //A function that rebuilds the terminal path preview
 string rebuildTerminalPath(vector<string> vec){
     string returnVal = "";
-    cout << "REBUILDING STRINGS " << endl;
     for(int x = 0; x<vec.size(); x++){
-        cout << vec[x] << endl;
         returnVal += vec[x];
     }
     return returnVal;
@@ -72,7 +70,6 @@ int calculateBytesUnused(int fileSize, int blockSize) {
     }
     int blocks = ceil(((float)fileSize / (float)blockSize));
     if (blocks == fileSize / blockSize) {
-        cout << "They are equal! " << endl;
         return 0;
     }
     return blockSize - (fileSize - ((blocks - 1) * blockSize));
@@ -341,28 +338,26 @@ void allocateBlocks(fileOrDir *file, int blockSize) {
 void deallocateBlocks(fileOrDir *file, int blockSize) {
     // delete a number of bytes from the file
     int diff = file->allocatedBytes - file->fileSize;
-    cout << "Diff :: " << diff << " file->allocateBytes " << file->allocatedBytes << "File size : " << file->fileSize << endl;
     int numBlocksRemove = diff/blockSize;
     int totalBlocksRemove = numBlocksRemove;
     bool success = false;
 
-    cout << "Testing deallocating blocks , inital amount :: " << file->blockAddresses.size() << endl;
     while (numBlocksRemove>0) {
-        cout << "Amount of blocks :: " << file->blockAddresses.size() << endl;
+        //cout << "Amount of blocks :: " << file->blockAddresses.size() << endl;
         list<int>::iterator addressIterator;
         addressIterator = file->blockAddresses.end();
         // the last node of the linked List
         addressIterator--;
         // calculate the blockID to remove
-        cout << "This is the addressIterator " << *addressIterator << endl;
+        //cout << "This is the addressIterator " << *addressIterator << endl;
         int blockID = *addressIterator / blockSize;
-        cout << "This is the blockId " << blockID << endl;
+        //cout << "This is the blockId " << blockID << endl;
         list<diskBlock*>::iterator blockIterator;
         blockIterator = diskBlocks.begin();
         while (blockIterator != diskBlocks.end()) {
             if((*blockIterator)->start <= blockID && (*blockIterator)->end >= blockID){
                 //split
-                cout << "BLOCK ID " << blockID << endl;
+                //cout << "BLOCK ID " << blockID << endl;
                 diskBlock *newBlock = new diskBlock;
                 newBlock->start = blockID;
                 newBlock->end = blockID;
@@ -373,22 +368,22 @@ void deallocateBlocks(fileOrDir *file, int blockSize) {
                     advance(nextNode,1);
 
                     if(nextNode == diskBlocks.end()){
-                        cout << "Only removing the last block, where nextNode = diskBlocks end" << endl;
+                        //cout << "Only removing the last block, where nextNode = diskBlocks end" << endl;
                         diskBlocks.push_back(newBlock);
                     }else{
                         //not adding at the back, need to figure out where to add
-                        cout << "Only removing the last block , and idk BLOCK ID :: " << blockID << endl;
+                        //cout << "Only removing the last block , and idk BLOCK ID :: " << blockID << endl;
                         (*blockIterator)->end = blockID-1;
                         advance(blockIterator,1);
                         diskBlocks.insert(blockIterator, newBlock);
                     }
                 }else if(blockID == (*blockIterator)->start){
-                    cout << "Removing the front " << endl;
+                    //cout << "Removing the front " << endl;
                     //removing the front
                     (*blockIterator)->start = blockID+1;
                     diskBlocks.insert(blockIterator, newBlock);
                 }else{
-                    cout << "Removing somewhere in the middle " << endl;
+                    //cout << "Removing somewhere in the middle " << endl;
                     //not the front, somewhere in the middle
                     diskBlock *whateverYouWantIDontCare = new diskBlock;
                     whateverYouWantIDontCare->start = blockID+1;
@@ -401,12 +396,12 @@ void deallocateBlocks(fileOrDir *file, int blockSize) {
                     advance(nextNode,1);
 
                     if(nextNode == diskBlocks.end()){
-                        cout << "Removing somewhere in the middle where nextNode = diskBlocks end" << endl;
+                        //cout << "Removing somewhere in the middle where nextNode = diskBlocks end" << endl;
                         diskBlocks.push_back(newBlock);
                         diskBlocks.push_back(whateverYouWantIDontCare);
                     }else{
                         //not adding at the back, need to figure out where to add
-                        cout << "Removing somewhere in the middle where nextNode != diskBlocks end BLOCK ID :: " << blockID << endl;
+                        //cout << "Removing somewhere in the middle where nextNode != diskBlocks end BLOCK ID :: " << blockID << endl;
                         advance(blockIterator,1);
                         diskBlocks.insert(blockIterator, whateverYouWantIDontCare);
                         diskBlocks.insert(prev(blockIterator), newBlock);
@@ -587,7 +582,7 @@ int main(int argc, char** argv) {
             file->isDirectory = false;
             file->timeStamp =  d1 + " " + d2 + " " + d3;
             file->allocatedBytes = 0;
-            cout << file->timeStamp << endl;
+            //cout << file->timeStamp << endl;
 
             treeNode* parent = findNode(root, dir.substr(0, dir.find_last_of("/")));
             treeNode* child = new treeNode;
@@ -602,8 +597,8 @@ int main(int argc, char** argv) {
         cout << "ERROR: Unable to open file_list.txt" << endl;
         return -1;
     }
-    cout << "print directory" << endl;
-    printDirectory(root);
+    // cout << "print directory" << endl;
+    // printDirectory(root);
 
     //TERMINIAL CODE
 
