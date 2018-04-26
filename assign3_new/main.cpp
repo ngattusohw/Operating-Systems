@@ -713,7 +713,7 @@ int main(int argc, char** argv) {
                                 }
                                 else {
                                     found->data->fileSize += stoi(input3);
-                                    found->data->timestamp = getTimeStamp();
+                                    found->data->timeStamp = getTimeStamp();
                                     //cout << " Printing out the input3 " << input3 << endl;
                                     allocateBlocks(found->data,blockSize);
                                 }
@@ -742,7 +742,7 @@ int main(int argc, char** argv) {
                             }
                             else {
                                 found->data->fileSize -= bytesToRemove;
-                                found->data->timestamp = getTimeStamp();
+                                found->data->timeStamp = getTimeStamp();
                                 deallocateBlocks(found->data,blockSize);                            }
                         }catch(...){
                             cout << "Please enter the correct parameter types! Usage:: remove <filename:string> <bytes:int>" << endl;
