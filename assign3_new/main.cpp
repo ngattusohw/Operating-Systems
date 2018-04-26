@@ -639,7 +639,7 @@ int main(int argc, char** argv) {
                         dir->name = TERMINAL_PATH + "/" +input2;
                         dir->fileSize = 0;
                         dir->isDirectory = true;
-                        dir->timeStamp = "";
+                        dir->timeStamp = getTimeStamp();
                         dir->allocatedBytes = 0;
 
                         treeNode *child = new treeNode;
@@ -713,6 +713,7 @@ int main(int argc, char** argv) {
                                 }
                                 else {
                                     found->data->fileSize += stoi(input3);
+                                    found->data->timestamp = getTimeStamp();
                                     //cout << " Printing out the input3 " << input3 << endl;
                                     allocateBlocks(found->data,blockSize);
                                 }
@@ -741,6 +742,7 @@ int main(int argc, char** argv) {
                             }
                             else {
                                 found->data->fileSize -= bytesToRemove;
+                                found->data->timestamp = getTimeStamp();
                                 deallocateBlocks(found->data,blockSize);                            }
                         }catch(...){
                             cout << "Please enter the correct parameter types! Usage:: remove <filename:string> <bytes:int>" << endl;
