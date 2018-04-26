@@ -419,20 +419,22 @@ void deallocateBlocks(fileOrDir *file, int blockSize) {
 
 void destroyTree(treeNode* root) {
     // TODO
-    treeNode* temp = root;
-    treeNode* t;
-    for (int i = 0; i<temp->children.size();i++) {
-      if (temp->children[i]->children.size()>0) {
-        destroyTree(temp->children[i]);
-      }
-      t = temp->children[i];
-      temp->data = NULL;
-      delete temp->data;
-      temp = NULL;
-      delete temp; //freed memory
-      temp = t;
+    if(root !=NULL){
+        treeNode* temp = root;
+        treeNode* t;
+        for (int i = 0; i<temp->children.size();i++) {
+          if (temp->children[i]->children.size()>0) {
+            destroyTree(temp->children[i]);
+          }
+          t = temp->children[i];
+          temp->data = NULL;
+          delete temp->data;
+          temp = NULL;
+          delete temp; //freed memory
+          temp = t;
+        }
+        root = NULL; 
     }
-    root = NULL; 
 }
 
 
@@ -739,10 +741,7 @@ int main(int argc, char** argv) {
                             }
                             else {
                                 found->data->fileSize -= bytesToRemove;
-                                //cout << "Error happers here " << endl;
-                                deallocateBlocks(found->data,blockSize);
-                                //cout << "Error penis? " << endl;
-                            }
+                                deallocateBlocks(found->data,blockSize);                            }
                         }catch(...){
                             cout << "Please enter the correct parameter types! Usage:: remove <filename:string> <bytes:int>" << endl;
                         }
@@ -775,8 +774,9 @@ int main(int argc, char** argv) {
                 if (response.compare("y") == 0) {
                     // Destroy everything
                     destroyTree(root);
+                    root = NULL;
                     cout << "Exiting...." << endl;
-                    return 0;
+                    //return 0;
                 }
             }else if(input.compare("dir") == 0 ){
                 printDirectory(root);
