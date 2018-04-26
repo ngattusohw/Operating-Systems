@@ -94,6 +94,26 @@ void printDirectory(treeNode *root) {
     }
 }
 
+// Print out directory STRUCTURE tree in breadth-first order
+void printDirectorySTRUCTURE(treeNode *root) {
+    if (root != NULL) {
+        treeNode *temp = root;
+        list<treeNode *> queue;
+        queue.push_back(root);
+        while(!queue.empty()){
+            // print the current directory name
+            temp = queue.front();
+            if(temp->data->isDirectory){
+                cout << temp->data->name << endl;
+            }
+            queue.pop_front();
+            for (int i = 0; i < temp->children.size(); ++i) {
+                queue.push_back(temp -> children[i]);
+            }
+        }
+    }
+}
+
 // Print all information about the file (file Name, file size, timestamp)
 void printFileInfo(fileOrDir *file) {
     cout << "File Name: " << file->name << " File Size: " << file->fileSize << " Timestamp: " << file->timeStamp << endl;
@@ -801,7 +821,7 @@ int main(int argc, char** argv) {
                     return 0;
                 }
             }else if(input.compare("dir") == 0 ){
-                printDirectory(root);
+                printDirectorySTRUCTURE(root);
                 // cout << "dir thing!" << endl;
             }else if(input.compare("prfiles") == 0){
                 // print out all file information
