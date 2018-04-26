@@ -32,8 +32,8 @@ public:
 
 class diskBlock {
 public:
-    int start;
-    int end;
+    int start; //start block ID
+    int end; //end block ID
     bool isFree;
 };
 
@@ -50,6 +50,7 @@ list<diskBlock*> diskBlocks;
 treeNode *root = new treeNode;
 treeNode *currentDir = new treeNode;
 
+
 string rebuildTerminalPath(vector<string> vec){
     string returnVal = "";
     cout << "REBUILDING STRINGS " << endl;
@@ -60,6 +61,7 @@ string rebuildTerminalPath(vector<string> vec){
     return returnVal;
 }
 
+// bytes unused = allocated bytes - used bytes
 int calculateBytesUnused(int fileSize, int blockSize) {
     if (fileSize == 0) {
         return 0;
@@ -91,6 +93,7 @@ void printDirectory(treeNode *root) {
     }
 }
 
+// Print all information about the file (file Name, file size, timestamp)
 void printFileInfo(fileOrDir *file) {
     cout << "File Name: " << file->name << " File Size: " << file->fileSize << " Timestamp: " << file->timeStamp << endl;
     list<int>::iterator it;
@@ -101,6 +104,7 @@ void printFileInfo(fileOrDir *file) {
     cout << endl;
 }
 
+// Print all file information
 void printAllFiles(treeNode *root) {
     if (root != NULL) {
         treeNode *temp = root;
@@ -122,6 +126,7 @@ void printAllFiles(treeNode *root) {
         }
     }
 }
+
 
 int countFragmentation(treeNode *root, int blockSize) {
     int frag = 0;
@@ -152,7 +157,7 @@ int countFragmentation(treeNode *root, int blockSize) {
 
 
 
-//prints out sub-directories under a given node
+// Print out sub-directories under a given node
 void printDirChildren(treeNode *node) {
     for (int i = 0; i < (node->children).size(); ++i)
     {
@@ -163,7 +168,7 @@ void printDirChildren(treeNode *node) {
     cout << endl;
 }
 
-// BST
+// To find one specific node in the tree through BST
 treeNode* findNode(treeNode *root, string name) {
     if (root != NULL) {
         treeNode *temp;
@@ -186,12 +191,13 @@ treeNode* findNode(treeNode *root, string name) {
     return NULL;
 }
 
+// Adds child node to its parent node
 void addChild(treeNode* parent, treeNode* child) {
-    //cout << "hello here" << endl;
     parent->children.push_back(child);
     child->parent = parent;
 }
 
+// Deletes the child from its parent
 int deleteChild(treeNode* parent, treeNode* child) {
     int test = 0;
     // to find the child
@@ -210,7 +216,7 @@ int deleteChild(treeNode* parent, treeNode* child) {
 }
 
 
-// Get timestamp
+// Get timestamp (current tie) ex: Apr 13 20:12
 string getTimeStamp() {
     chrono::system_clock::time_point today  = chrono::system_clock::now();
     std::time_t tt = chrono::system_clock::to_time_t (today);
@@ -243,6 +249,7 @@ void mergeLDisk() {
     }
 }
 
+// Allocate file blocks to one specific file
 void allocateBlocks(fileOrDir *file, int blockSize) {
     //cout << file->fileSize << ":: fileSize ... allocatedBytes ::" << file->allocatedBytes << endl;
     int diff = (file->fileSize) - (file->allocatedBytes);
@@ -253,8 +260,6 @@ void allocateBlocks(fileOrDir *file, int blockSize) {
     if (numBlocksNeeded == 0) {
         return;
     }
-
-    //cout << numBlocksNeeded << "numBlocksNeeded" << endl;
 
     //cout << numBlocksNeeded << "numBlocksNeeded" << endl;
 
@@ -331,7 +336,7 @@ void allocateBlocks(fileOrDir *file, int blockSize) {
 
 
 
-
+// Deallocate right number of file blocks from one specific file
 void deallocateBlocks(fileOrDir *file, int blockSize) {
     // delete a number of bytes from the file
     int diff = file->allocatedBytes - file->fileSize;
@@ -425,12 +430,11 @@ void deallocateBlocks(fileOrDir *file, int blockSize) {
     if((*edgeCaseChecker)->end < 0){
         diskBlocks.pop_front();
     }
-    
     mergeLDisk();
 }
 
 
-
+// Destroy the whole tree
 void destroyTree(treeNode* root) {
     // TODO
     if(root !=NULL){
@@ -571,7 +575,6 @@ int main(int argc, char** argv) {
         return -1;
     }
     // printDirectory(root);
-
     string ID;
     int fileSize;
     string d1;
