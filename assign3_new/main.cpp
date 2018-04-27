@@ -54,10 +54,28 @@ list<diskBlock*> diskBlocks;
 treeNode *root = new treeNode;
 treeNode *currentDir = new treeNode;
 
+// /Directory1/Directory12
+vector<string> buildTerminalVector(vector<string> terminalVec, list<string> holderVec, string input){
+    size_t found = input.find_last_of("/");
+    if(found==string::npos || found==0){
+        //no more slashes
+        terminalVec.push_back(input);
+        for(list<string>::iterator it = holderVec.begin(); it != holderVec.end(); it++){
+            terminalVec.push_back(*it);
+        }
+        return terminalVec;
+    }else{
+        string holder = input.substr(found);
+        holderVec.push_front(holder);
+        return buildTerminalVector(terminalVec, holderVec, input.substr(0, found));   
+    }
+}
+
 //A function that rebuilds the terminal path preview
 string rebuildTerminalPath(vector<string> vec){
     string returnVal = "";
     for(int x = 0; x<vec.size(); x++){
+        cout << "This is the vector elem :: " << vec[x] << endl;
         returnVal += vec[x];
     }
     return returnVal;
@@ -645,7 +663,9 @@ int main(int argc, char** argv) {
                     if (find(DIR_LIST_VECTOR.begin(), DIR_LIST_VECTOR.end(), cd_temp) != DIR_LIST_VECTOR.end()){
                         // Element in vector.
                         TERMINAL_PATH = cd_temp;
-                        TERMINAL_PATH_VECTOR.push_back(cd_temp);
+                        list<string> holder;
+                        TERMINAL_PATH_VECTOR = buildTerminalVector(TERMINAL_PATH_VECTOR, holder, input2);
+                        //TERMINAL_PATH_VECTOR.push_back(input2);
                     }else{
                         cout << cd_temp << " Is not a valid directory!" << endl;
                         cout << "Below are your list of valid directories :: " << endl;
@@ -795,10 +815,12 @@ int main(int argc, char** argv) {
         }else{
             //all of the one thing commands
             if(input.compare("cd..") == 0){
+                cout << "This is the terminal path before rebuilding " << TERMINAL_PATH << endl;
                 if(TERMINAL_PATH_VECTOR.size()!=1){
                     TERMINAL_PATH_VECTOR.pop_back();
                     TERMINAL_PATH = rebuildTerminalPath(TERMINAL_PATH_VECTOR);
                 }
+                cout << "This is the path after " << TERMINAL_PATH << endl;
             }else if(input.compare("ls") == 0){
                 treeNode* temp_currentNode = findNode(root, TERMINAL_PATH);
                 if(temp_currentNode != NULL){
