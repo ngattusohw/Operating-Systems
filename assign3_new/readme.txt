@@ -17,10 +17,15 @@ The program will only run properly if there is an extra slash in the root name. 
 files that were created in a linux system, please manually add an extra slash at the end of the root directory's name.
 Please see the included file_list.txt and dir_list.txt files for reference.
 
+IMPORTANT NOTE 2:
+All timestamps are in UTC.
+
 Shell commands:
 cd [directory]
 -Write the directory name with a slash in front of it
 Ex: cd /Directory1
+-You may also add multiple directories
+Ex: cd /Directory1/Directory12
 
 cd..
 -Do not use a space between cd and ..
@@ -33,8 +38,9 @@ mkdir [name]
 Ex: mkdir NewDirectory
 
 create [name]
--Write the new file name without a slash in front of it
+-Write the new file/directory name without a slash in front of it
 Ex: create newFile.txt
+Ex: create newDir
 
 append [name] [bytes]
 -Write the full path of the file you wish to append to
@@ -45,8 +51,10 @@ remove [name] [bytes]
 Ex: remove .//Directory1/file1InDir1.c 20
 
 delete [name]
--Write the full path of the file you wish to delete
-Ex: delete .//Directory1/file1InDir1.c 20
+-Write the full path of the file/directory you wish to delete
+-The directory must be empty
+Ex: delete .//Directory1/file1InDir1.c
+Ex: delete .//Directory1/
 
 exit
 -No special usage rules
