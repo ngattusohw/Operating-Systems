@@ -54,7 +54,8 @@ list<diskBlock*> diskBlocks;
 treeNode *root = new treeNode;
 treeNode *currentDir = new treeNode;
 
-// /Directory1/Directory12
+// A functional that effectievley handles cding with multbile directory paths
+// Creates a seperate vector and builds that, then adds it to base terminal vector and returns it
 vector<string> buildTerminalVector(vector<string> terminalVec, list<string> holderVec, string input){
     size_t found = input.find_last_of("/");
     if(found==string::npos || found==0){
@@ -75,7 +76,6 @@ vector<string> buildTerminalVector(vector<string> terminalVec, list<string> hold
 string rebuildTerminalPath(vector<string> vec){
     string returnVal = "";
     for(int x = 0; x<vec.size(); x++){
-        cout << "This is the vector elem :: " << vec[x] << endl;
         returnVal += vec[x];
     }
     return returnVal;
@@ -288,13 +288,11 @@ void mergeLDisk() {
     }
 }
 
-// Allocate file blocks to one specific file
+// Allocate file blocks to one specific file given the file and blocksize
 void allocateBlocks(fileOrDir *file, int blockSize) {
     //cout << file->fileSize << ":: fileSize ... allocatedBytes ::" << file->allocatedBytes << endl;
     int diff = (file->fileSize) - (file->allocatedBytes);
     bool success = false;
-
-    //cout << "This is testing mother fucker (diff, blocksize) " << diff << ", " << blockSize << endl;
     int numBlocksNeeded = ceil((float)diff / (float)blockSize);
     if (numBlocksNeeded == 0) {
         return;
@@ -507,6 +505,7 @@ int main(int argc, char** argv) {
         cout << "Error: Expected 8 arguments" << endl;
         return -1;
     }
+    //do argument parsing
     for (int i = 1; i < argc - 1; i = i + 2) {
 
         if  (!strcmp(argv[i], "-s")) {
@@ -678,6 +677,7 @@ int main(int argc, char** argv) {
                     if(input2.substr(0,1).compare("/") == 0){
                         cout << "mkdir: " << input2 << " Permission denied" << endl;
                     }else{
+                        //create a new file or dir
                         fileOrDir *dir = new fileOrDir;
                         dir->name = TERMINAL_PATH + "/" +input2;
                         dir->fileSize = 0;
@@ -686,7 +686,7 @@ int main(int argc, char** argv) {
                         dir->allocatedBytes = 0;
                         if(root != NULL){
                             treeNode* the_parent = findNode(root, TERMINAL_PATH);
-                            cout << "This is the found parent " << the_parent->data->name << endl;
+                            //cout << "This is the found parent " << the_parent->data->name << endl;
                             treeNode *child = new treeNode;
                             child->data = dir;
                             child->parent = NULL;
@@ -755,7 +755,6 @@ int main(int argc, char** argv) {
                 //do the three space stuff here
                 input3 = input2.substr(second_space+1);
                 input2 = input2.substr(0,second_space);
-                cout << "This is input 2 ::" << input2 << "::"<< endl;
                 if(input.compare("append") == 0){
                     if(typeid(input2) == typeid(string)){
                         treeNode* found = findNode(root, input2);
@@ -765,7 +764,7 @@ int main(int argc, char** argv) {
                             cout << "Error: please give a file name" << endl;
                         }
                         else {
-                            cout << "This is the found treeNode" << found->data->name << endl;
+                            //cout << "This is the found treeNode" << found->data->name << endl;
                             try{
                                 int bytesToAdd = stoi(input3);
                                 if (found->data->fileSize + stoi(input3) > diskSize) {
@@ -793,7 +792,7 @@ int main(int argc, char** argv) {
                     }else if (found->data->isDirectory) {
                         cout << "Error: please give a file name" << endl;
                     }else{
-                        cout << "This is the found treeNode" << found->data->name << endl;
+                        //cout << "This is the found treeNode" << found->data->name << endl;
                         try{
                             int bytesToRemove = stoi(input3);
                             //cout << " Printing out the input3 " << input3 << endl;
@@ -816,12 +815,12 @@ int main(int argc, char** argv) {
         }else{
             //all of the one thing commands
             if(input.compare("cd..") == 0){
-                cout << "This is the terminal path before rebuilding " << TERMINAL_PATH << endl;
+                //cout << "This is the terminal path before rebuilding " << TERMINAL_PATH << endl;
                 if(TERMINAL_PATH_VECTOR.size()!=1){
                     TERMINAL_PATH_VECTOR.pop_back();
                     TERMINAL_PATH = rebuildTerminalPath(TERMINAL_PATH_VECTOR);
                 }
-                cout << "This is the path after " << TERMINAL_PATH << endl;
+                //cout << "This is the path after " << TERMINAL_PATH << endl;
             }else if(input.compare("ls") == 0){
                 treeNode* temp_currentNode = findNode(root, TERMINAL_PATH);
                 if(temp_currentNode != NULL){
