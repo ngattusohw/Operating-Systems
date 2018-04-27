@@ -771,6 +771,7 @@ int main(int argc, char** argv) {
                                 if (found->data->fileSize + stoi(input3) > diskSize) {
                                     cout << "Error: you cannot add " << bytesToAdd <<
                                     " bytes " << "to file" << found->data->name << endl;
+                                    cout << "Out of space! " << endl;
                                 }
                                 else {
                                     found->data->fileSize += stoi(input3);
